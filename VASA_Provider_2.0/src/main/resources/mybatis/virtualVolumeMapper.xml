@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VirtualVolumeDao">
+	<resultMap id="nVirtualVolume" type="org.opensds.vasa.vasa.db.model.NVirtualVolume">
+    	<result property="vvolid" column="vvolid" />
+		<result property="size" column="size" />
+		<result property="createdBy" column="createdBy" />
+		<result property="creationTime" column="creationTime" />
+		<result property="containerId" column="containerId" />
+		<result property="vvolType" column="vvolType" />
+		<result property="sourceType" column="sourceType" />
+		<result property="parentId" column="parentId" />
+    	<result property="arrayId" column="arrayId" />
+    	<result property="rawId" column="raw_id" />
+    	<result property="status" column="status" />
+    	<result property="lunId" column="lunId" />
+    	<result property="wwn" column="wwn" />
+    	<result property="rawPoolId" column="rawPoolId" />
+    	<result property="vmId" column="vmId" />
+    	<result property="vmName" column="vmName" />
+    	<result property="deletedTime" column="deletedTime" />
+    </resultMap>
+    
+    <resultMap id="vvolOwnController" type="org.opensds.vasa.vasa.rest.bean.VvolOwnController">
+		<result property="vvolType" column="vvolType" />
+		<result property="vvolName" column="value"/>
+		<result property="sourceType" column="sourceType" />
+		<result property="vvolSize" column="size" />
+		<result property="vvolCreateTime" column="creationTime" />
+		<result property="vvolId" column="vvolid" />
+		<result property="vvolContainerName" column="containerName" />
+		<result property="status" column="status" />
+		<result property="vmId" column="vmId" />
+		<result property="parentId" column="parentId"/>
+		<result property="lunId" column="lunId"/>
+		<result property="arrayId" column="arrayId"/>
+	</resultMap>
+
+	<select id="getVMAllDataSizeByVmId" resultType = "long" parameterType="String">
+		select COALESCE(sum(SIZE),0) from VirtualVolume where vmId = #{vmId} and (status = 'available' or status = 'creating') and vvoltype = 'Data'
+	</select>
+
+	<select id="getVMAllDataSizeByVvolId" resultType = "long" parameterType="String">
+		select (sum(SIZE),0) from VirtualVolume where vmname = (
+			select vmname from VirtualVolume where vvolid = #{vvolid}
+		) and status = 'available' and vvoltype = 'Data'
+	</select>
+    
+    <select id="getVirtualVolumeCount" resultType="java.lang.Long">
+    	select count(1) from VirtualVolume
+    </select>
+    
+    <select id="getDiskCountByVmId" resultType="int" parameterType="String">
+        select count(*) from VirtualVolume where vmId = #{vmId} and vvolType = 'Data'
+    </select>
+    
+    <select id="getAllVvolIds" resultType="String" parameterType="java.util.Map">
+    	select vvolid from VirtualVolume order by vvolid limit #{pageSize} offset #{from}
+    </select>
+    
+   	<select id="getVirtualVolumeByVvolId" resultMap="nVirtualVolume" parameterType="String">
+    	select * from VirtualVolume where vvolid = #{vvolid}
+    </select>
+    
+    <select id="getVirtualVolumeByParentId" resultMap="nVirtualVolume" parameterType="String">
+    	select * from VirtualVolume where parentid = #{parentid}
+    </select>
+    
+    <select id="getAllVirtualVolumeByContainerId" resultMap="nVirtualVolume" parameterType="String">
+    	select * from VirtualVolume where containerId = #{containerId}
+    </select>
+    
+    <select id="getVvolIdByArrayIdAndRawId" resultType="String" parameterType="java.util.Map">
+    	select vvolid from VirtualVolume where arrayId = #{arrayId} and raw_id = #{rawId} and status in
+    	<foreach collection="status" item="item" index="index" open="(" separator="," close=")">
+    		#{item}
+    	</foreach> 
+    </select>
+    
+    <select id="getDeletingDependenciesCountById" resultType="int" parameterType="java.util.Map">
+    	select count(*) from VirtualVolume where parentId = #{vvolid} and status = 'deleting' and sourceType in
+    	<foreach collection="sourceType" item="item" index="index" open="(" separator="," close=")">
+    		#{item}
+    	</foreach>
+    </select>
+    
+    <select id="getAllInactiveSnapshots" resultMap="nVirtualVolume" >
+    	select * from VirtualVolume where sourceType = 'snapshot' and status = 'inactive'
+    </select>   
+    
+    <select id="getAllAvailableVvols" resultMap="vvolOwnController" parameterType="String">
+		select volume.*,sc.containerName,metadata.value
+		from
+		VirtualVolume volume left join VvolMetadata metadata
+		on (volume.vvolid = metadata.vvolid and metadata.key = 'VMW_VVolName')
+		left join storageContainer sc on (volume.containerId = sc.containerId)
+			where 1=1
+			<if test="keyword != null and keyword != ''">
+				<if test="searchField !=null and searchField == 'vvolName' ">
+					and metadata.value like concat('%',#{keyword},'%')
+				</if>	
+				<if test="searchField !=null and searchField == 'vvolType' ">
+					and volume.vvolType like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'sourceType' ">
+					and volume.sourceType like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'vvolId' ">
+					and volume.vvolid like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'vmId' ">
+					and volume.vmId like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'vmName' ">
+					and volume.vmName like concat('%',#{keyword},'%')
+				</if>
+		</if>
+		group by volume.vvolType, volume.sourceType, volume.vvolid,
+		volume.createdBy, volume.containerId, sc.containerName, volume.creationTime,volume.vmId,
+		metadata.key ,metadata.value
+	</select>
+    
+    <select id="getAllSpecifiedVvols" resultMap="nVirtualVolume" parameterType="org.opensds.vasa.vasa.db.model.NVirtualVolume">
+    	select * from VirtualVolume where status = #{status} and <![CDATA[creationTime < #{creationTime} ]]>
+    </select>
+    
+    <select id="getAllCreatingDataADayBefore" resultMap="nVirtualVolume" parameterType="Date">
+    	select * from VirtualVolume where status = 'creating' and <![CDATA[creationTime < #{creationTime} ]]>
+    </select>
+    
+    <select id="getAllSpecifiedStatusVvols" resultMap="nVirtualVolume" parameterType="String">
+    	select * from VirtualVolume where status = #{status}
+    </select>
+    
+    <select id="getDeletingVirtualVolumeOrderByDeletedTime" resultMap="nVirtualVolume" parameterType="java.util.Map">
+    	select * from VirtualVolume where status = 'deleting' order by deletedTime limit 100;
+    </select>
+    
+    <select id="getVirtualVolumeByArrayIdAndRawPoolId" resultMap="nVirtualVolume">
+    	select * from VirtualVolume where arrayId = #{arrayId} and rawPoolId = #{rawPoolId};
+    </select>
+    
+    <select id="getDependenciesCountByVvolId" resultType="int" parameterType="java.util.Map">
+    	select count(*) from VirtualVolume where parentId = #{vvolid} and <![CDATA[status <> 'deleting' ]]> and sourceType in
+    	<foreach collection="sourceType" item="item" index="index" open="(" separator="," close=")">
+    		#{item}
+    	</foreach>
+    </select>
+    
+    <select id="getSnapshotAndFastCloneCountByVvolId" resultType="int" parameterType="String">
+    	select count(*) from VirtualVolume where parentId = #{vvolid} and sourceType in  
+    	<foreach collection="sourceType" item="item" index="index" open="(" separator="," close=")">
+    		#{item}
+    	</foreach>
+    </select>
+    
+    <insert id="addVirtualVolume" parameterType="org.opensds.vasa.vasa.db.model.NVirtualVolume">
+    	insert into VirtualVolume
+    	values(
+    		#{vvolid} ,
+    		#{size} ,
+    		#{createdBy} ,
+    		#{creationTime} ,
+    		#{containerId} ,
+    		#{vvolType} ,
+    		#{sourceType} ,
+    		#{parentId} ,
+    		#{arrayId} ,
+    		#{rawId} ,
+    		#{status},
+    		#{lunId},
+    		#{wwn},
+    		#{rawPoolId},
+    		#{vmId},
+    		#{vmName},
+    		#{deletedTime}
+    	)
+    </insert>
+    
+    <update id="updateStatusByVvolId" parameterType="org.opensds.vasa.vasa.db.model.NVirtualVolume">
+    	update VirtualVolume set status = #{status} where vvolid = #{vvolid}
+    </update>
+    
+    <update id="updateStatusAndDeletedTimeByVvolId" parameterType="org.opensds.vasa.vasa.db.model.NVirtualVolume">
+    	update VirtualVolume set status = #{status} , deletedTime = #{deletedTime} where vvolid = #{vvolid}
+    </update>
+    
+    <update id="updateParentIdByVvolId" parameterType="org.opensds.vasa.vasa.db.model.NVirtualVolume">
+    	update VirtualVolume set parentid = #{parentId} where vvolid = #{vvolid}
+    </update>
+    
+    <update id="updateArrayIdAndRawIdByVvolId" parameterType="org.opensds.vasa.vasa.db.model.NVirtualVolume">
+    	update VirtualVolume set arrayId = #{arrayId}, raw_id = #{rawId}, lunId = #{lunId} where vvolid = #{vvolid}
+    </update>
+    
+    <update id="updateSizeByVvolId" parameterType="org.opensds.vasa.vasa.db.model.NVirtualVolume">
+    	update VirtualVolume set size = #{size} where vvolid = #{vvolid}
+    </update>
+    
+    <update id="updateDataByVvolId" parameterType="Map">
+    	update VirtualVolume set lunid = #{lunId}, wwn=#{wwn}, status = #{status}, raw_id = #{lunId} where vvolid = #{vvolid}
+    </update>
+    
+    <update id="updateVmIdByVvolId" parameterType="Map">
+    	update VirtualVolume set vmId = #{vmId} where vvolid = #{vvolid}
+    </update>
+    
+    <update id="updateVmInfoByVvolId" parameterType="Map">
+    	update VirtualVolume set vmId = #{vmId}, vmName = #{vmName} where vvolid = #{vvolid}
+    </update>
+    
+    <delete id="deleteVirtualVolumeByVvolId" parameterType="String">
+		delete from VirtualVolume where vvolid = #{vvolid}
+    </delete>
+
+	<select id="getCloningVvolCountById" resultType="int" parameterType="String">
+		select count(*) from VirtualVolume where parentId = #{vvolid} and status = 'initing'
+	</select>
+</mapper>

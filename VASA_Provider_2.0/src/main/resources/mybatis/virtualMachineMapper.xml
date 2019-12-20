@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VirtualMachineDao">
+	<resultMap id="nVirtualMachine" type="org.opensds.vasa.vasa.db.model.NVirtualMachine">
+    	<result property="vmId" column="vmId" />
+		<result property="vmName" column="vmName" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+    	<result property="deletedTime" column="deletedTime" />
+    	<result property="deleted" column="deleted" />
+    </resultMap>
+    
+ 	<sql id="sql_where">
+    	<where>
+    		<if test="vmId != null">
+    			vmId=#{vmId}
+    		</if>
+    		<if test="vmName != null">
+    			and vmName=#{vmName}
+    		</if>
+    		<if test="deleted != null">
+    			and coalesce(deleted,'false')=#{deleted}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="vmId != null"> vmId=#{vmId}, </if>
+    		<if test="vmName != null"> vmName=#{vmName}, </if>
+    		<if test="createdTime != null"> createdTime=#{createdTime}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime}, </if>
+    		<if test="deletedTime != null"> deletedTime=#{deletedTime}, </if>
+    		<if test="deleted != null"> deleted=#{deleted} </if>
+    	</set>
+    </sql>
+ 
+    <insert id="addVirtualMachine" parameterType="org.opensds.vasa.vasa.db.model.NVirtualMachine">
+    	insert into VirtualMachine
+    	values(
+    		seq_virtualMachine.nextval ,
+    		#{vmId} ,
+    		#{vmName} ,
+    		#{createdTime} ,
+    		#{updatedTime} ,
+    		#{deletedTime} ,
+    		#{deleted}
+    	)
+    </insert>
+    
+    <select id="getVirtualMachineInfoByVmId" resultMap="nVirtualMachine" parameterType="String">
+		select * from VirtualMachine where vmId = #{vmId};
+	</select>
+    
+    <update id="updateVirtualMachine" parameterType="org.opensds.vasa.vasa.db.model.NVirtualMachine">
+    	update VirtualMachine
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+    <delete id="deleteVirtualMachine" parameterType="org.opensds.vasa.vasa.db.model.NVirtualMachine">
+    	delete from VirtualMachine
+    	<include refid="sql_where"></include>
+    </delete>
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VvolMetadataDao">
+	<resultMap id="nVvolMetadata" type="org.opensds.vasa.vasa.db.model.NVvolMetadata">
+    	<result property="id" column="id" />
+		<result property="vvolid" column="vvolid" />
+		<result property="key" column="key" />
+		<result property="value" column="value" />
+    </resultMap>
+    
+    <select id="getAllReportVvolMetadata" resultMap="nVvolMetadata" parameterType="java.util.List">
+    	select * from VvolMetadata where vvolid in 
+    	(
+    		select vvolid from virtualvolume where status in 
+    		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+    		#{item}
+    		</foreach>
+    	)
+    </select>
+    
+    <select id="getVvolMetadataByVvolId" resultMap="nVvolMetadata" parameterType="String">
+    	select * from VvolMetadata where vvolid = #{vvolid}
+    </select>
+    
+    <select id="getvmNameByVvolId" resultType="String" parameterType="String">
+    	select value from VvolMetadata where vvolid = #{vvolid} and key = 'VMW_VVolName'
+    </select>
+    
+    
+    <select id="getCountByVvolIdAndKey" resultType="int" parameterType="org.opensds.vasa.vasa.db.model.NVvolMetadata">
+    	select count(*) from VvolMetadata where vvolid = #{vvolid} and key = #{key}
+    </select>
+    
+    <insert id="addVvolMetadata" parameterType="org.opensds.vasa.vasa.db.model.NVvolMetadata">
+    	insert into VvolMetadata
+    	values(
+    		seq_vvolMetaData.nextval ,
+    		#{vvolid} ,
+    		#{key} ,
+    		#{value}
+    	)
+    </insert>
+    
+    <delete id="deleteVvolMetadataByVvolId" parameterType="String">
+		delete from VvolMetadata where vvolid = #{vvolid}
+    </delete>
+    
+    <delete id="deleteVvolMetadataByVvolIdAndKey" parameterType="org.opensds.vasa.vasa.db.model.NVvolMetadata">
+		delete from VvolMetadata where vvolid = #{vvolid} and key = #{key}
+    </delete>
+    
+     <update id="updateVvolMetadataByVvolIdAndKey" parameterType="org.opensds.vasa.vasa.db.model.NVvolMetadata">
+    	update VvolMetadata set value = #{value} where vvolid = #{vvolid} and key = #{key}
+    </update>
+</mapper>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.StorageContainerDao">
+	<resultMap id="nStorageContainer" type="org.opensds.vasa.vasa.db.model.NStorageContainer">
+    	<result property="containerId" column="containerId" />
+		<result property="containerName" column="containerName" />
+		<result property="description" column="description" />
+		<result property="status" column="status" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+		<result property="deletedTime" column="deletedTime" />
+		<result property="deleted" column="deleted" />
+		<result property="containerType" column="containerType" />
+    </resultMap>
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="containerId != null">
+    			containerId=#{containerId}
+    		</if>
+    		<if test="containerName != null">
+    			and containerName=#{containerName}
+    		</if>
+    		<if test="status != null">
+    			and status=#{status}
+    		</if>
+			<if test="containerType != null">
+				and type=#{containerType}
+			</if>
+    		<if test="deleted != null">
+    			and coalesce(deleted,'false')=#{deleted}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="containerName != null"> containerName=#{containerName}, </if>
+    		<if test="description != null"> description=#{description}, </if>
+    		<if test="status != null"> status=#{status}, </if>
+			<if test="containerType != null"> type=#{containerType}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime}, </if>
+    		<if test="deletedTime != null"> deletedTime=#{deletedTime}, </if>
+    		<if test="deleted != null"> coalesce(deleted,'false')=#{deleted} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NStorageContainer">
+    	insert into StorageContainer 
+    	values(
+    		#{containerId} ,
+    		#{containerName} ,
+    		#{description} ,
+    		#{status} ,
+    		#{createdTime} ,
+    		#{updatedTime} ,
+    		#{deletedTime} ,
+    		#{deleted},
+    		 #{containerType}
+    	)
+    </insert>
+    
+    <select id="getStorageContainerCount" resultType="java.lang.Long">
+    	select count(1) from StorageContainer where coalesce(deleted,'false') = false;
+    </select>
+    
+    <select id="getAll" resultMap="nStorageContainer">
+    	select * from StorageContainer where coalesce(deleted,'false') = false;
+    </select>
+    
+    <select id="search" resultMap="nStorageContainer" parameterType="org.opensds.vasa.vasa.db.model.NStorageContainer">
+    	select * from StorageContainer 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getDataByKey" resultMap="nStorageContainer" parameterType="org.opensds.vasa.vasa.db.model.NStorageContainer">
+    	select * from StorageContainer 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="searchContainers"  resultMap="nStorageContainer">
+    	select * from StorageContainer where containerId in 
+            <foreach collection="containerIds" item="id" open="(" close=")" separator=",">
+   				#{id}
+    		</foreach>
+    </select>
+    
+	<select id="getStorageContainerByPageSize" resultMap="nStorageContainer"
+		parameterType="Map">
+		select * from StorageContainer where deleted = false order by containerId limit #{pageSize} offset #{offSet};
+	</select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.NStorageContainer">
+    	delete from StorageContainer
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.NStorageContainer">
+    	update StorageContainer
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+    <update id="deleteStorageContainerByContainerId" parameterType="org.opensds.vasa.vasa.db.model.NStorageContainer">
+    	update StorageContainer set deleted = #{deleted} , deletedTime = #{deletedTime} where containerId = #{containerId}
+    </update>
+    
+    <select id="getStorageContainerByContainerName" resultMap="nStorageContainer" parameterType="String">
+    	select * from StorageContainer where containerName = #{containerName} and coalesce(deleted,'false') = false
+    </select>
+    
+    <select id="getStorageContainerByContainerId" resultMap="nStorageContainer" parameterType="String">
+    	select * from StorageContainer where containerId = #{containerId} and coalesce(deleted,'false') = false
+    </select>
+</mapper>

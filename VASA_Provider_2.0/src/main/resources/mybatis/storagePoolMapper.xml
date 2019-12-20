@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.StoragePoolDao">
+	<resultMap id="nStoragePool" type="org.opensds.vasa.vasa.db.model.NStoragePool">
+    	<result property="arrayId" column="arrayId" />
+		<result property="rawPoolId" column="rawPoolId" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="freeCapacity" column="freeCapacity" />
+		<result property="totalCapacity" column="totalCapacity" />
+		<result property="raidLevel" column="raidLevel" />
+		<result property="deviceStatus" column="deviceStatus" />
+		<result property="storageType" column="storageType" />
+		<result property="capacityThreshold" column="capacityThreshold" />
+		<result property="parentId" column="parentId" />
+		<result property="parentName" column="parentName" />
+		<result property="diskType" column="diskType" />
+		<result property="containerId" column="containerId" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+		<result property="deletedTime" column="deletedTime" />
+		<result property="deleted" column="deleted" />
+    </resultMap>
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="arrayId != null">
+    			arrayId=#{arrayId}
+    		</if>
+    		<if test="rawPoolId != null">
+    			and rawPoolId=#{rawPoolId}
+    		</if>
+    		<if test="parentId != null">
+    			and parentId=#{parentId}
+    		</if>
+    		<if test="containerId != null">
+    			and containerId=#{containerId}
+    		</if>
+    		<if test="deleted != null">
+    			and coalesce(deleted,'false')=#{deleted}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="name != null"> name=#{name}, </if>
+    		<if test="description != null"> description=#{description}, </if>
+    		<if test="freeCapacity != null"> freeCapacity=#{freeCapacity}, </if>
+    		<if test="totalCapacity != null"> totalCapacity=#{totalCapacity}, </if>
+    		<if test="raidLevel != null"> raidLevel=#{raidLevel}, </if>
+    		<if test="deviceStatus != null"> deviceStatus=#{deviceStatus}, </if>
+    		<if test="storageType != null"> storageType=#{storageType}, </if>
+    		<if test="capacityThreshold != null"> capacityThreshold=#{capacityThreshold}, </if>
+    		<if test="containerId != null"> containerId=#{containerId}, </if>
+    		<if test="parentId != null"> parentId=#{parentId}, </if>
+    		<if test="parentName != null"> parentName=#{parentName}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime}, </if>
+    		<if test="deletedTime != null"> deletedTime=#{deletedTime}, </if>
+    		<if test="deleted != null"> deleted=#{deleted} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NStoragePool">
+    	insert into StoragePool 
+    	values(
+    		seq_StoragePool.nextval ,
+    		#{arrayId} ,
+    		#{rawPoolId} ,
+    		#{description} ,
+    		#{name} ,
+    		#{freeCapacity} ,
+    		#{totalCapacity} ,
+    		#{raidLevel} ,
+    		#{deviceStatus} ,
+    		#{storageType} ,
+    		#{capacityThreshold} ,
+    		#{parentId} ,
+    		#{parentName} ,
+    		#{diskType} ,
+    		#{containerId} ,
+    		#{createdTime} ,
+    		#{updatedTime} ,
+    		#{deletedTime} ,
+    		#{deleted}
+    	)
+    </insert>
+    
+    <select id="getAll" resultMap="nStoragePool">
+    	select * from StoragePool
+    </select>
+    
+    <select id="search" resultMap="nStoragePool" parameterType="org.opensds.vasa.vasa.db.model.NStoragePool">
+    	select * from StoragePool 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getDataByKey" resultMap="nStoragePool" parameterType="org.opensds.vasa.vasa.db.model.NStoragePool">
+    	select * from StoragePool 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.NStoragePool">
+    	delete from StoragePool
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.NStoragePool">
+    	update StoragePool
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+    <select id="queryStoragePoolByContainerId" resultMap="nStoragePool"
+		parameterType="String">
+		select * from StoragePool where containerId = #{containerId} and deleted = false;
+	</select>
+	
+	<select id="getUnbindStoragePoolPageByArrayId" resultMap="nStoragePool"
+		parameterType="Map">
+		select * from StoragePool where arrayId = #{arrayId} and containerId is null and deleted = false order by id limit #{pageSize} offset #{offSet};
+	</select>
+	
+	<select id="getAllBindStoragePoolByArrayId" resultMap="nStoragePool" parameterType="String">
+		select * from StoragePool where arrayId = #{arrayId} and containerId is not null and deleted = false order by id;
+	</select>
+	
+	<select id="queryStoragePoolByArrayIdAndPageSize" resultMap="nStoragePool"
+		parameterType="Map">
+		select * from StoragePool where arrayId = #{arrayId} and deleted = false order by id limit #{pageSize} offset #{offSet};
+	</select>
+	
+	<select id="getUnbindStoragePoolSizeByArrayId" resultType="int" parameterType="String" >
+		select count(1) from StoragePool where arrayId = #{arrayId} and containerId is null and deleted = false;
+	</select>
+	
+	<select id="queryStoragePoolByArrayId" resultMap="nStoragePool" parameterType="String">
+		select * from  StoragePool where arrayId = #{arrayId} and deleted = false;
+	</select>
+	
+	<select id="bindStoragePools" parameterType="java.util.Map">
+		update StoragePool set containerId=#{containerId} where arrayId=#{arrayId} and rawPoolId in 
+		<foreach collection="pools" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	
+	<delete id="deleteStoragePoolsByPoolIds" parameterType="java.util.Map">
+    	delete from StoragePool where arrayId=#{arrayId} and containerId=#{containerId} and rawPoolId in
+    	<foreach collection="pools" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+    </delete>
+	
+	<select id="setStoragePoolsLost" parameterType="java.util.Map">
+    	update StoragePool set devicestatus = 'Lost' where arrayId=#{arrayId} and containerId=#{containerId} and rawPoolId in
+    	<foreach collection="pools" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+    </select>
+    
+	<select id="unbindStoragePools" parameterType="java.util.Map">
+		update StoragePool set containerId=null where arrayId=#{arrayId} and rawPoolId in 
+		<foreach collection="pools" index="index" item="item" open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	
+	<select id="queryStoragePoolByContainerIdAndPageSize" resultMap="nStoragePool"
+		parameterType="Map">
+		select * from StoragePool where containerId = #{containerId} and deleted = false order by id limit #{pageSize} offset #{offSet};
+	</select>
+	
+</mapper>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.StorageProfileDao">
+	<resultMap id="nStorageProfile" type="org.opensds.vasa.vasa.db.model.NStorageProfile">
+    	<result property="profileId" column="profileId" />
+    	<result property="policyId" column="policyId" />
+		<result property="profileName" column="profileName" />
+		<result property="isSmartTier" column="isSmartTier" />
+		<result property="smartTierValue" column="smartTierValue" />
+		<result property="isStorageMedium" column="isStorageMedium" />
+		<result property="diskTypeValue" column="diskTypeValue" />
+		<result property="raidLevelValue" column="raidLevelValue" />
+		<result property="controlType" column="controlType" />
+		<result property="controlTypeId" column="controlTypeId" />
+		<result property="smartQosId" column="smartQosId" />
+		<result property="containerId" column="containerId" />
+		<result property="thinThick" column="thinThick" />
+		<result property="omCreated" column="omCreated" />
+		<result property="generationId" column="generationId" />
+		<result property="deprecated" column="deprecated" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+		<result property="deletedTime" column="deletedTime" />
+		<result property="deleted" column="deleted" />
+    </resultMap>
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="profileId != null">
+    			profileId=#{profileId}
+    		</if>
+    		<if test="deprecated != null">
+    			and deprecated=#{deprecated}
+    		</if>
+    		<if test="deleted != null">
+    			and coalesce(deleted,'false')=#{deleted}
+    		</if>
+    		<if test="omCreated != null">
+    			and coalesce(omCreated,'false')=#{omCreated}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="profileName != null"> profileName=#{profileName}, </if>
+    		<if test="isSmartTier != null"> isSmartTier=#{isSmartTier}, </if>
+    		<if test="smartTierValue != null"> smartTierValue=#{smartTierValue}, </if>
+    		<if test="controlType != null"> controlType=#{controlType}, </if>
+    		<if test="controlTypeId != null"> controlTypeId=#{controlTypeId}, </if>
+    		<if test="smartQosId != null"> smartQosId=#{smartQosId}, </if>
+    		<if test="containerId != null"> containerId=#{containerId}, </if>
+    		<if test="thinThick != null"> thinThick=#{thinThick}, </if>
+    		<if test="generationId != null"> generationId=#{generationId}, </if>
+    		<if test="deprecated != null"> deprecated=#{deprecated}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime}, </if>
+    		<if test="deletedTime != null"> deletedTime=#{deletedTime}, </if>
+    		<if test="deleted != null"> deleted=#{deleted} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfile">
+    	insert into StorageProfile
+    	values(
+    		#{profileId},
+    		#{profileName} ,
+    		#{isSmartTier} ,
+    		#{smartTierValue} ,
+    		#{isStorageMedium},
+    		#{diskTypeValue},
+    		#{raidLevelValue},
+    		#{controlType} ,
+    		#{controlTypeId} ,
+    		#{smartQosId} ,
+    		#{containerId} ,
+    		#{omCreated} ,
+    		#{thinThick} ,
+    		#{generationId} ,
+    		#{deprecated} ,
+    		#{createdTime} ,
+    		#{updatedTime} ,
+    		#{deletedTime} ,
+    		#{deleted},
+    		#{policyId}
+    	)
+    </insert>
+    
+    <select id="getStorageProfileCount" resultType="java.lang.Long">
+    	select count(1) from StorageProfile where deleted is null or deleted = false;
+    </select>
+    
+    <select id="getAll" resultMap="nStorageProfile">
+    	select * from StorageProfile where deleted is null or deleted = false;
+    </select>
+    
+    <select id="search" resultMap="nStorageProfile" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfile">
+    	select * from StorageProfile 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getDataByKey" resultMap="nStorageProfile" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfile">
+    	select * from StorageProfile 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfile">
+    	delete from StorageProfile
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfile">
+    	update StorageProfile
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+    <select id="getStorageProfileByProfileId" resultMap="nStorageProfile" parameterType="String">
+    	select * from StorageProfile where profileId = #{profileId}
+    </select>
+    
+    <select id="getStorageProfileByProfileName" resultType="int" parameterType="String">
+    	select count(*) from StorageProfile where profileName = #{profileName} and coalesce(deleted,'false') = false
+    </select>
+    
+    <select id="queryOmCreateStorageProfileByPage" resultMap="nStorageProfile"
+		parameterType="Map">
+		select * from StorageProfile where coalesce(deleted,'false') = false order by containerId limit #{pageSize} offset #{offSet};
+	</select>
+
+	<select id="queryOmCreateStorageProfileByContainerId" resultMap="nStorageProfile" parameterType="String">
+		select * from StorageProfile where containerId = #{containerId} and coalesce(deleted,'false') = false and omcreated = true;
+	</select>
+
+	<update id="updateStorageProfileByProfileId" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfile">
+    	update StorageProfile set profileName = #{profileName} , isSmartTier = #{isSmartTier} , smartTierValue = #{smartTierValue} ,isStorageMedium = #{isStorageMedium},diskTypeValue=#{diskTypeValue},
+    	raidLevelValue=#{raidLevelValue},controlType = #{controlType} ,
+    	controlTypeId = #{controlTypeId} , thinThick = #{thinThick} , smartQosId = #{smartQosId} ,containerId = #{containerId} , updatedTime = #{updatedTime} where profileId = #{profileId}
+    </update>
+    
+    <update id="deleteStorageProfileByProfileId" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfile">
+    	update StorageProfile set deleted = true , deletedTime = #{deletedTime} where profileId = #{profileId}
+    </update>
+</mapper>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VasaOperationDao">
+	<resultMap id="vasaOperation" type="org.opensds.vasa.vasa.db.model.VasaOperation">
+    	<result property="ip" column="ip" />
+    	<result property="key" column="key" />
+		<result property="value" column="value" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+    </resultMap>
+    
+  
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="ip != null">
+    			ip=#{ip}
+    		</if>
+    		<if test="key != null">
+    			and key=#{key}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="ip != null"> ip=#{ip}, </if>
+    		<if test="key != null"> key=#{key}, </if>
+    		<if test="value != null"> value=#{value}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.VasaOperation">
+    	insert into vasaOperation
+    	values(
+    		#{ip},
+    		#{key} ,
+    		#{value} ,
+    		#{createdTime} ,
+    		#{updatedTime}
+    	)
+    </insert>
+    
+    <select id="getAll" resultMap="vasaOperation">
+    	select * from vasaOperation;
+    </select>
+    
+    <select id="search" resultMap="vasaOperation" parameterType="org.opensds.vasa.vasa.db.model.VasaOperation">
+    	select * from vasaOperation 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getDataByKey" resultMap="vasaOperation" parameterType="org.opensds.vasa.vasa.db.model.VasaOperation">
+    	select * from vasaOperation 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.VasaOperation">
+    	delete from vasaOperation
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.VasaOperation">
+    	update vasaOperation
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+</mapper>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.UserManagerDao">
+	<resultMap id="nUser" type="org.opensds.vasa.vasa.db.model.NUser">
+    	<result property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="lastLogin" column="lastLogin" />
+		<result property="ipAddress" column="ipAddress" />
+		<result property="lastChangePass" column="lastChangePass" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+		<result property="deletedTime" column="deletedTime" />
+		<result property="deleted" column="Deleted" />
+    </resultMap>
+
+    <sql id="sql_where">
+    	<where>
+    		<if test="id != null">
+    			id=#{id}
+    		</if>
+    		<if test="username != null">
+    			and username=#{username}
+    		</if>
+    		<if test="deleted != null">
+    			and coalesce(deleted,'false')=#{deleted}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="username != null"> username=#{username}, </if>
+    		<if test="password != null"> password=#{password}, </if>
+    		<if test="lastLogin != null"> lastLogin=#{lastLogin}, </if>
+    		<if test="ipAddress != null"> ipAddress=#{ipAddress}, </if>
+    		<if test="lastChangePass != null"> lastChangePass=#{lastChangePass}, </if>
+    		<if test="createdTime != null"> createdTime=#{createdTime}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime}, </if>
+    		<if test="deletedTime != null"> deletedTime=#{deletedTime}, </if>
+    		<if test="deleted != null"> deleted=#{deleted} </if>
+    	</set>
+    </sql>
+    
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NUser">
+    	insert into UserManager 
+    	values(
+    		SEQ_USERMANAGER.nextval ,
+    		#{username} ,
+    		#{password} ,
+    		#{lastLogin} ,
+    		#{ipAddress} ,
+    		#{lastChangePass} ,
+    		#{createdTime} ,
+    		#{updatedTime} ,
+    		#{deletedTime} ,
+    		#{deleted}
+    	)
+    </insert>
+
+    <select id="getAll" resultMap="nUser">
+    	select * from UserManager
+    </select>
+
+    <select id="getUserList" resultMap="nUser">
+    	select * from UserManager where deleted = false order by username desc;
+    </select>
+
+	<select id="getUserInfoByUsername" resultMap="nUser" parameterType="String">
+		select * from UserManager where username = #{username} and deleted = false;
+	</select>
+
+	<select id="getHistoricRecordByUsername" resultMap="nUser" parameterType="String">
+		select * from UserManager where username = #{username} and deleted = true order by id DESC limit 4;
+	</select>
+	
+	<update id="updateUserInfo" parameterType="org.opensds.vasa.vasa.db.model.NUser">
+    	update UserManager
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+    <update id="deleteUser" parameterType="org.opensds.vasa.vasa.db.model.NUser">
+    	update UserManager set deleted = #{deleted} , deletedTime = #{deletedTime} where id = #{id};
+    </update>
+</mapper>

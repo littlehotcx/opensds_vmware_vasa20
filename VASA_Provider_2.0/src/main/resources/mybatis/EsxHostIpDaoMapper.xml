@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.EsxHostIpDao">
+    <resultMap id="nEsxHostIp" type="org.opensds.vasa.vasa.db.model.EsxHostIp">
+        <result property="id" column="id" />
+        <result property="ip" column="ip" />
+        <result property="hostId" column="hostId" />
+    </resultMap>
+    
+    <select id="queryEsxHostIpByHostId" resultMap="nEsxHostIp" parameterType="String">
+        select * from EsxHostIpTable where hostId = #{hostId}
+    </select>
+    
+    <select id="queryRecordByHostIdAndIp" resultMap="nEsxHostIp" parameterType="org.opensds.vasa.vasa.db.model.EsxHostIp">
+        select * from EsxHostIpTable where hostId = #{hostId} and ip = #{ip}
+    </select>
+    
+    <insert id="insertRecord" parameterType="org.opensds.vasa.vasa.db.model.EsxHostIp">
+        insert into EsxHostIpTable
+        values(
+            seq_esxhostip.nextval,
+            #{ip},
+            #{hostId}
+        )
+    </insert>
+
+    <delete id="deleteRecord" parameterType="String">
+        delete from EsxHostIpTable where hostId = #{hostId} and ip = #{ip}
+    </delete>
+
+
+</mapper>

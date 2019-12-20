@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VasaEventDao">
+	<resultMap id="nVasaEvent" type="org.opensds.vasa.vasa.db.model.NVasaEvent">
+		<result property="arrayId" column="arrayId" />
+    	<result property="arraySn" column="arraySn" />
+		<result property="eventId" column="eventId" />
+		<result property="eventSequence" column="eventSequence" />
+		<result property="startTime" column="startTime" />
+    </resultMap>
+    
+    <select id="getEventByArrayId" resultMap="nVasaEvent" parameterType="String">
+    	select * from VasaEvent where arrayId = #{arrayId}
+    </select>
+    
+    <select id="getAllArrayIds" resultType="String">
+    	select arrayId from VasaEvent
+    </select>
+    
+    <insert id="addEvent" parameterType="org.opensds.vasa.vasa.db.model.NVasaEvent">
+    	insert into VasaEvent
+    	values(
+    		#{arrayId} ,
+    		#{arraySn} ,
+    		#{eventId} ,
+    		#{eventSequence} ,
+    		#{startTime}
+    	)
+    </insert>
+    
+    <update id="updateEventByArrayId" parameterType="org.opensds.vasa.vasa.db.model.NVasaEvent">
+    	update VasaEvent set eventId = #{eventId}, eventSequence = #{eventSequence},
+    		startTime = #{startTime} where arrayId = #{arrayId}
+    </update>
+    
+    <delete id="deleteVasaEventByArrayId" parameterType="String">
+		delete from VasaEvent where arrayId = #{arrayId}
+    </delete>
+</mapper>

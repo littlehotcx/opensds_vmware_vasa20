@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.SnapshotCloneRecordDao">
+	<resultMap id="nSnapshotCloneRecord" type="org.opensds.vasa.vasa.db.model.snapshotCloneRecord">
+		<result property="id" column="id" />
+		<result property="vmId" column="vmId" />
+		<result property="diskCount" column="diskCount" />
+		<result property="diskRemain" column="diskRemain" />
+		<result property="operationType" column="operationType" />
+		<result property="startTime" column="startTime" />
+		<result property="endTime" column="endTime" />
+		<result property="inputName" column="inputName" />
+	</resultMap>
+	
+	<select id="getUnfinishedCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+    	select count(*)  from SnapshotCloneRecord where vmId = #{vmId} and operationType = #{operationType} and diskRemain > 0
+    </select>
+
+
+	<select id="getRemainCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(*) from SnapshotCloneRecord where vmId = #{vmId} and operationType = #{operationType} and diskRemain > 0
+    </select>
+
+	<select id="getInputName" resultType="String" parameterType="java.util.Map">
+        select inputName from SnapshotCloneRecord where vmId = #{vmId} and operationType = #{operationType} and diskRemain > 0
+    </select>
+    
+    <delete id="deleteRecord" parameterType="java.util.Map">
+        delete from SnapshotCloneRecord where vmId = #{vmId} and operationType = #{operationType} and inputName = #{inputName}
+    </delete>
+
+	<delete id="deleteFinishedRecord" parameterType="Date">
+        delete from SnapshotCloneRecord where diskRemain = 0 and <![CDATA[startTime < #{creationTime} ]]>
+    </delete>
+
+	<delete id="deleteTimeoutRecord" parameterType="Date">
+        delete from SnapshotCloneRecord where diskRemain > 0 and <![CDATA[startTime < #{creationTime} ]]>
+    </delete>
+
+    <update id="addRecord" parameterType="org.opensds.vasa.vasa.db.model.snapshotCloneRecord">
+        update SnapshotCloneRecord set diskRemain = diskRemain - 1
+        ,endTime = current_timestamp
+        where vmId = #{vmId} and operationType = #{operationType} and diskRemain > 0
+    </update>
+
+
+	<insert id="initRecord" parameterType="org.opensds.vasa.vasa.db.model.snapshotCloneRecord">
+    	insert into SnapshotCloneRecord
+    	values(
+    	    seq_SnapshotCloneRecord.nextval,
+    		#{vmId} ,
+    		#{diskCount} ,
+    		#{diskRemain} ,
+    		#{operationType} ,
+    		#{startTime} ,
+    		#{endTime},
+    		#{inputName}
+    	)
+    </insert>
+
+
+</mapper>

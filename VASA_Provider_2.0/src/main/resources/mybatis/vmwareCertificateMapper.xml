@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VmwareCertificateDao">
+
+	<resultMap id="nVmwareCertificate" type="org.opensds.vasa.vasa.db.model.NVmwareCertificate">
+    	<result property="id" column="id" />
+		<result property="caContent" column="CAContent" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.BlobTypeHandler"/>
+		<result property="creationTime" column="creationTime" />
+    </resultMap>
+    
+     <insert id="addVmwareCertificate" parameterType="org.opensds.vasa.vasa.db.model.NVmwareCertificate"
+      useGeneratedKeys="true" keyProperty="id">
+    	insert into VmwareCertificate
+    	values(
+    		seq_vmwarecertificate.nextval,
+    		#{caContent,jdbcType=BLOB} ,
+    		#{creationTime}
+    	)
+    </insert>
+    
+    <select id="queryNeedSyncCerts" resultMap="nVmwareCertificate" parameterType="String">
+    	select * from VmwareCertificate t 
+    	where not exists 
+    	(select vcid from VmwareCertificateSync where syncIP = #{syncIp} and t.id = vcid )
+    </select>
+    
+    <delete id="delCert2SyncResult">
+		delete from VmwareCertificate;
+		delete from VmwareCertificateSync;
+    </delete>
+</mapper>

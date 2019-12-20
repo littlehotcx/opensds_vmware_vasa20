@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.CapabilityMetadataDao">
+	<resultMap id="nCapabilityMetadata" type="org.opensds.vasa.vasa.db.model.NCapabilityMetadata">
+    	<result property="id" column="id" />
+		<result property="category" column="category" />
+		<result property="capabilityId" column="capabilityId" />
+		<result property="namespace" column="namespace" />
+		<result property="mandatory" column="mandatory" />
+		<result property="key" column="key" />
+		<result property="summary" column="summary" />
+		<result property="type" column="type" />
+		<result property="requirementsTypeHint" column="requirementsTypeHint" />
+		<result property="defaultValue" column="defaultValue" />
+		<result property="allowedValues" column="allowedValues" />
+    </resultMap>
+    
+   	<select id="getAllCapabilityMetadata" resultMap="nCapabilityMetadata" >
+    	select * from CapabilityMetadata
+    </select>
+    
+    <select id="getAllMetadataCategory" resultType="String">
+    	select distinct category from CapabilityMetadata
+    </select>
+    
+    <select id="getAllMetadataCapabilityId" resultType="String">
+    	select distinct capabilityId from CapabilityMetadata
+    </select>
+    
+    <select id="getCapabilityMetadataByCategory" resultMap="nCapabilityMetadata" parameterType="String">
+    	select * from CapabilityMetadata where category = #{category}
+    </select>
+</mapper>

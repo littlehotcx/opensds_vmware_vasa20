@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.StorageProfileLevelDao">
+	<resultMap id="nStorageProfileLevel" type="org.opensds.vasa.vasa.db.model.NStorageProfileLevel">
+    	<result property="id" column="id" />
+    	<result property="type" column="type" />
+		<result property="level" column="level" />
+		<result property="levelProperty" column="levelProperty" />
+    </resultMap>
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="id != null">
+    			id=#{id}
+    		</if>
+    		<if test="type != null">
+    			and type=#{type}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="level != null"> level=#{level}, </if>
+    		<if test="levelProperty != null"> levelProperty=#{levelProperty} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfileLevel">
+    	insert into StorageProfileLevel
+    	values(
+    		#{id},
+    		#{type} ,
+    		#{level} ,
+    		#{levelProperty}
+    	)
+    </insert>
+    
+    <select id="getAll" resultMap="nStorageProfileLevel">
+    	select * from StorageProfileLevel order by id;
+    </select>
+    
+    <select id="search" resultMap="nStorageProfileLevel" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfileLevel">
+    	select * from StorageProfileLevel 
+    	<include refid="sql_where"></include> order by id
+    </select>
+    
+    <select id="getDataByKey" resultMap="nStorageProfileLevel" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfileLevel">
+    	select * from StorageProfileLevel 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getUserLevelConf" resultMap="nStorageProfileLevel" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfileLevel">
+    	select * from StorageProfileLevel where type=#{type} and level=#{level}
+    </select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfileLevel">
+    	delete from StorageProfileLevel
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.NStorageProfileLevel">
+    	update StorageProfileLevel
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+</mapper>

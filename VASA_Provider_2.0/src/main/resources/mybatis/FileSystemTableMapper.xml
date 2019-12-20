@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.FileSystemTableDao">
+    <resultMap id="nFileSystemTable" type="org.opensds.vasa.vasa.db.model.FileSystemTable">
+        <result property="fileSystemName" column="fileSystemName" />
+        <result property="id" column="id" />
+        <result property="maxCapacity" column="maxCapacity" />
+        <result property="currentCapacity" column="currentCapacity" />
+        <result property="fileCount" column="fileCount" />
+        <result property="status" column="status" />
+    </resultMap>
+    
+    <select id="queryFileSystemTableByName" resultMap="nFileSystemTable" parameterType="String">
+        select * from FileSystemTable where fileSystemName = #{fileSystemName}
+    </select>
+    
+    <select id="getFileSystemTableByFuzzySystemName" resultMap="nFileSystemTable" parameterType="String">
+        select * from FileSystemTable where fileSystemName = #{fileSystemName}
+    </select>
+    
+    <select id="getAllFileSystemTable" resultMap="nFileSystemTable" parameterType="String">
+        select * from FileSystemTable
+    </select>
+    
+    <update id="updateFsId" parameterType="org.opensds.vasa.vasa.db.model.FileSystemTable">
+        update FileSystemTable set id = #{id} where fileSystemName = #{fileSystemName}
+    </update>
+    
+     <update id="updateFileCount" parameterType="org.opensds.vasa.vasa.db.model.FileSystemTable">
+        update FileSystemTable set fileCount = #{fileCount} where fileSystemName = #{fileSystemName}
+    </update>
+    
+     <update id="updateFileCurrCapacity" parameterType="org.opensds.vasa.vasa.db.model.FileSystemTable">
+        update FileSystemTable set currentCapacity = #{currentCapacity} where fileSystemName = #{fileSystemName}
+    </update>
+
+    <update id="updateFileCountAndCapacity" parameterType="java.util.Map">
+        update FileSystemTable set currentCapacity = currentCapacity + #{currentCapacity}, fileCount = fileCount + #{fileCount} 
+        where fileSystemName = #{fileSystemName}
+    </update>
+
+    <update id="updateStatus" parameterType="org.opensds.vasa.vasa.db.model.FileSystemTable">
+        update FileSystemTable set status = #{status} where fileSystemName = #{fileSystemName}
+    </update>
+
+    <insert id="insertRecord" parameterType="org.opensds.vasa.vasa.db.model.FileSystemTable">
+        insert into FileSystemTable
+        values(
+            #{fileSystemName} ,
+            #{id} ,
+            #{maxCapacity} ,
+            #{currentCapacity},
+            #{fileCount},
+            #{status}
+        )
+    </insert>
+
+    <delete id="deleteRecodeByFilesystemName" parameterType="String">
+        delete from FileSystemTable where fileSystemName = #{fileSystemName}
+    </delete>
+
+
+</mapper>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.StorageManagerDao">
+	<resultMap id="StorageInfo" type="org.opensds.vasa.vasa.db.model.StorageInfo">
+		<result property="id" column="arrayid" />
+		<result property="ip" column="ip" />
+		<result property="ips" column="ips" />
+		<result property="port" column="port" />
+		<result property="deviceType" column="deviceType" />		
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="devicestatus" column="devicestatus" />
+		<result property="model" column="model" />
+		<result property="storagename" column="storagename" />
+		<result property="productversion" column="productversion" />
+		<result property="registered" column="registered" />
+		<result property="sn" column="sn" />
+		<result property="vendor" column="vendor" />
+		<result property="arrayUTCTime" column="arrayUTCTime" />
+		<result property="supportvvol" column="supportvvol" />
+        <result property="createtime" column="createtime" />
+		<result property="updatetime" column="updatetime" />
+		<result property="deletetime" column="deletetime" />
+		<result property="deleted" column="deleted" />
+		<result property="vvolsupportProfile" column="vvolsupportProfile" />
+	</resultMap>
+	
+	 <sql id="sql_where">
+    	<where>
+    		<if test="id != null">
+    			arrayid=#{id}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="ip != null"> ip=#{ip}, </if>
+    		<if test="ips != null"> ips=#{ips}, </if>
+    		<if test="port != null"> port=#{port}, </if>
+    		<if test="username != null"> username=#{username}, </if>
+    		<if test="password != null"> password=#{password}, </if>
+    		<if test="devicestatus != null"> devicestatus=#{devicestatus}, </if>
+    		<if test="model != null"> model=#{model}, </if>
+			<if test="deviceType != null"> deviceType=#{deviceType}, </if>
+    		<if test="storagename != null"> storagename=#{storagename}, </if>
+    		<if test="productversion != null"> productversion=#{productversion}, </if>
+    		<if test="supportvvol != null"> supportvvol=#{registered}, </if>
+    		<if test="sn != null"> sn=#{sn}, </if>
+    		<if test="vendor != null"> vendor=#{vendor}, </if>
+    		<if test="arrayUTCTime != null"> arrayUTCTime=#{arrayUTCTime}, </if>
+    		<if test="createtime != null"> createtime=#{createtime}, </if>
+    		<if test="updatetime != null"> updatetime=#{updatetime}, </if>
+    		<if test="deletetime != null"> deletetime=#{deletetime}, </if>
+    		<if test="deleted != null"> deleted=#{deleted}, </if>
+    		<if test="vvolsupportProfile != null"> vvolsupportProfile=#{vvolsupportProfile} </if>
+    	</set>
+    </sql>
+	
+	<resultMap id="VvolType" type="org.opensds.vasa.vasa.db.model.VvolType">
+		<result property="deviceType" column="deviceType" />
+		<result property="deviceVersion" column="deviceVersion" />
+	</resultMap>
+
+	<insert id="setInfo" parameterType="org.opensds.vasa.vasa.db.model.StorageInfo">
+		insert into StorageArray
+		values(
+		    #{id},#{ip},#{ips},#{port},#{deviceType},#{username},#{password},
+		    #{devicestatus},#{model},#{storagename},#{productversion},#{registered},
+		    #{sn},#{vendor},#{supportvvol},#{createtime},#{updatetime},#{deletetime},
+		    #{deleted},#{vvolsupportProfile},#{arrayUTCTime}
+		)
+	</insert>
+	
+	<select id="getStorageArrayCount" resultType="java.lang.Long">
+		select count(1) from StorageArray where deleted='0';
+	</select>
+	
+	<select id="queryStorageArray" resultMap="StorageInfo"
+		parameterType="Map">
+		select * from StorageArray where deleted='0' order by arrayId limit #{pageSize} offset #{offSet};
+	</select>
+	
+	<select id="queryInfo" resultMap="StorageInfo">
+         select * from StorageArray 
+    </select>
+    
+    <select id="queryInfoByArrayId" resultMap="StorageInfo" parameterType="String">
+         select * from StorageArray where arrayId=#{arrayId}
+    </select>
+	
+ 	<update id="deleteInfo" parameterType="org.opensds.vasa.vasa.db.model.StorageInfo">
+         update StorageArray set deleted = #{deleted} ,devicestatus = #{devicestatus}, deletetime = #{deletetime} where arrayid = #{id}
+    </update>
+    
+    <update id="addExistDevice" parameterType="org.opensds.vasa.vasa.db.model.StorageInfo">
+         update StorageArray set deleted = #{deleted} ,devicestatus = #{devicestatus} where arrayid = #{id}
+    </update>
+    
+    <update id="updateExistDeviceInfo" parameterType="org.opensds.vasa.vasa.db.model.StorageInfo">
+    	update StorageArray
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+    <update id="modifyInfo" parameterType="org.opensds.vasa.vasa.db.model.StorageInfo">
+         update StorageArray set ip = #{ip},port = #{port},username = #{username},password = #{password},devicestatus = #{devicestatus},storagename = #{storagename},productversion = #{productversion},registered = #{registered},
+		 sn = #{sn},vendor = #{vendor},supportvvol = #{supportvvol},updatetime = #{updatetime},
+		 deleted = #{deleted},vvolsupportProfile = #{vvolsupportProfile}
+         where arrayid = #{id}
+    </update>
+    
+    <select id="queryVvolType" resultMap="VvolType">
+         select * from SupportDeviceVersion 
+    </select> 
+    
+    <select id="getStorageBySn" resultMap="StorageInfo">
+    	select * from StorageArray where sn=#{sn}
+    </select>
+    
+    <update id="syncInfo" parameterType="org.opensds.vasa.vasa.db.model.StorageInfo">
+         update StorageArray set ips = #{ips},storagename = #{storagename},productversion = #{productversion},sn = #{sn},updatetime= #{updatetime},devicestatus= #{devicestatus}
+         where arrayid = #{id}
+    </update>
+    
+   	<update id="updateStatus" parameterType="org.opensds.vasa.vasa.db.model.StorageInfo">
+   	 update StorageArray set updatetime = #{updatetime},devicestatus= #{devicestatus} where arrayid = #{id}
+   	</update>
+   	
+   	<select id="needSyncStorageInfo" resultMap="StorageInfo" parameterType="String">
+    	select * from StorageArray s 
+    	where not exists
+    	(select arrayId from AddStorageArraySync where syncIp = #{syncIp} and s.id = arrayId)
+    </select>
+</mapper>

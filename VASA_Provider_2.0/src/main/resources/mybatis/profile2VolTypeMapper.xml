@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.Profile2VolTypeDao">
+	<resultMap id="nProfile2VolType" type="org.opensds.vasa.vasa.db.model.NProfile2VolType">
+		<result property="profileName" column="profileName" />
+		<result property="profileId" column="profileId" />
+		<result property="voltypeName" column="voltypeName" />
+		<result property="voltypeId" column="voltypeId" />
+		<result property="containerId" column="containerId" />
+		<result property="lastUseTime" column="lastUseTime" />
+		<result property="thinThick" column="thinThick" />
+		<result property="generationId" column="generationId" />
+		<result property="deprecated" column="deprecated" />
+    </resultMap>
+    
+   	<select id="getProfile2VolTypeByProfileId" resultMap="nProfile2VolType" parameterType="java.util.Map">
+    	select * from Profile2VolType where profileId = #{profileId} and containerId = #{containerId} and thinThick = #{thinThick} and generationId = #{generationId} and deprecated = #{deprecated}
+    </select>
+    
+    <select id="getAllProfile2VolType" resultMap="nProfile2VolType">
+        select * from Profile2VolType
+    </select>    
+    
+    <insert id="insertProfile2VolType" parameterType="org.opensds.vasa.vasa.db.model.NProfile2VolType">
+    	insert into Profile2VolType
+    	values(
+    	    #{profileId} ,
+    		#{profileName} ,
+    		#{voltypeId} ,
+    		#{voltypeName} ,
+    		#{containerId} ,
+    		#{lastUseTime} ,
+    		#{thinThick},
+    		#{generationId},
+    		#{deprecated}
+    	)
+    </insert>
+    
+    <delete id="delProfile2VolType" parameterType="java.util.Map">
+		delete from Profile2VolType where profileId = #{profileId} and generationId = #{generationId} and containerId = #{containerId} and thinThick = #{thinThick}
+    </delete>
+    
+    <update id="updateLastUseTime" parameterType="org.opensds.vasa.vasa.db.model.NProfile2VolType">
+        update Profile2VolType set LASTUSETIME = #{lastUseTime} where profileId = #{profileId} and generationId = #{generationId}
+    </update>
+    
+    <update id="updateDeprecated" parameterType="java.util.Map">
+        update Profile2VolType set deprecated = #{deprecated} where containerId = #{containerId} and deprecated = 'false'
+    </update>
+</mapper>

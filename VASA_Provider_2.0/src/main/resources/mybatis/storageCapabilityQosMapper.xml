@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.StorageCapabilityQosDao">
+	<resultMap id="nStorageCapabilityQos" type="org.opensds.vasa.vasa.db.model.NStorageCapabilityQos">
+    	<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="qosControlType" column="qosControlType" />
+		<result property="qosControlPolicy" column="qosControlPolicy" />
+		<result property="bandwidth" column="bandwidth" />
+		<result property="iops" column="iops" />
+		<result property="latency" column="latency" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+		<result property="deletedTime" column="deletedTime" />
+		<result property="deleted" column="deleted" />
+    </resultMap>
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="id != null">
+    			id=#{id}
+    		</if>
+    		<if test="name != null">
+    			and name=#{name}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="name != null"> name=#{name}, </if>
+    		<if test="qosControlType != null"> qosControlType=#{qosControlType}, </if>
+    		<if test="qosControlPolicy != null"> qosControlPolicy=#{qosControlPolicy}, </if>
+    		<if test="bandwidth != null"> bandwidth=#{bandwidth}, </if>
+    		<if test="iops != null"> iops=#{iops}, </if>
+    		<if test="latency != null"> latency=#{latency}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime}, </if>
+    		<if test="deletedTime != null"> deletedTime=#{deletedTime}, </if>
+    		<if test="deleted != null"> deleted=#{deleted} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NStorageCapabilityQos">
+    	insert into StorageCapabilityQos 
+    	values(
+    		#{id} ,
+    		#{name} ,
+    		#{qosControlType} ,
+    		#{qosControlPolicy} ,
+    		#{bandwidth} ,
+    		#{iops} ,
+    		#{latency} ,
+    		#{createdTime} ,
+    		#{updatedTime} ,
+    		#{deletedTime} ,
+    		#{deleted}
+    	)
+    </insert>
+    
+    <select id="getAll" resultMap="nStorageCapabilityQos">
+    	select * from StorageCapabilityQos
+    </select>
+    
+    <select id="search" resultMap="nStorageCapabilityQos" parameterType="org.opensds.vasa.vasa.db.model.NStorageCapabilityQos">
+    	select * from StorageCapabilityQos 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getDataByKey" resultMap="nStorageCapabilityQos" parameterType="org.opensds.vasa.vasa.db.model.NStorageCapabilityQos">
+    	select * from StorageCapabilityQos 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.NStorageCapabilityQos">
+    	delete from StorageCapabilityQos
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.NStorageCapabilityQos">
+    	update StorageCapabilityQos
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+    <select id="getStorageCapabilityQosById" resultMap="nStorageCapabilityQos" parameterType="String">
+    	select * from StorageCapabilityQos where id =#{id}
+    </select>
+
+    <update id="updateStorageCapabilityQosById" parameterType="org.opensds.vasa.vasa.db.model.NStorageCapabilityQos">
+    	update StorageCapabilityQos set name = #{name} , qosControlType = #{qosControlType} , controlPolicy = #{controlPolicy} ,
+    	 bandwidth = #{bandwidth} , iops = #{iops} , latency = #{latency} , updatedTime = #{updatedTime} where id = #{id}
+    </update>
+    
+	<update id="deleteStorageCapabilityQosById" parameterType="org.opensds.vasa.vasa.db.model.NStorageCapabilityQos">
+    	update StorageCapabilityQos set deleted = true , deletedTime = #{deletedTime} where id = #{id}
+    </update>
+</mapper>

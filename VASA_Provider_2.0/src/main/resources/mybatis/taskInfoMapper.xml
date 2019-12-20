@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.TaskInfoDao">
+	<resultMap id="nTaskInfo" type="org.opensds.vasa.vasa.db.model.NTaskInfo">
+    	<result property="taskId" column="taskId" />
+    	<result property="name" column="name" />
+		<result property="arrayid" column="arrayid" />
+		<result property="errMsg" column="errMsg" />
+		<result property="result" column="result" />
+		<result property="taskState" column="taskState" />
+		<result property="extraProperties" column="extraProperties" />
+		<result property="cancelab" column="cancelab" />
+		<result property="cancelled" column="cancelled" />
+		<result property="progressUpdateAvailable" column="progressUpdateAvailable" />
+		<result property="progress" column="progress" />
+		<result property="startTime" column="startTime" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+		<result property="deletedTime" column="deletedTime" />
+		<result property="deleted" column="deleted" />
+    </resultMap>
+    
+  
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="taskId != null">
+    			taskId=#{taskId}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="name != null"> name=#{name}, </if>
+    		<if test="arrayid != null"> arrayid=#{arrayid}, </if>
+    		<if test="errMsg != null"> errMsg=#{errMsg}, </if>
+    		<if test="result != null"> result=#{result}, </if>
+    		<if test="taskState != null"> taskState=#{taskState}, </if>
+    		<if test="extraProperties != null"> extraProperties=#{extraProperties}, </if>
+    		<if test="cancelab != null"> cancelab=#{cancelab}, </if>
+    		<if test="cancelled != null"> cancelled=#{cancelled}, </if>
+    		<if test="progressUpdateAvailable != null"> progressUpdateAvailable=#{progressUpdateAvailable}, </if>
+    		<if test="progress != null"> progress=#{progress}, </if>
+    		<if test="startTime != null"> startTime=#{startTime}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime}, </if>
+    		<if test="deletedTime != null"> deletedTime=#{deletedTime}, </if>
+    		<if test="deleted != null"> deleted=#{deleted} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NTaskInfo">
+    	insert into TaskInfo
+    	values(
+    		#{taskId},
+    		#{name} ,
+    		#{arrayid} ,
+    		#{errMsg} ,
+    		#{result} ,
+    		#{taskState} ,
+    		#{extraProperties} ,
+    		#{cancelab} ,
+    		#{cancelled} ,
+    		#{progressUpdateAvailable} ,
+    		#{progress} ,
+    		#{startTime} ,
+    		#{createdTime} ,
+    		#{updatedTime} ,
+    		#{deletedTime} ,
+    		#{deleted}
+    	)
+    </insert>
+    
+    <select id="getAll" resultMap="nTaskInfo">
+    	select * from TaskInfo where deleted is null or deleted = false;
+    </select>
+    
+    <select id="search" resultMap="nTaskInfo" parameterType="org.opensds.vasa.vasa.db.model.NTaskInfo">
+    	select * from TaskInfo 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getDataByKey" resultMap="nTaskInfo" parameterType="org.opensds.vasa.vasa.db.model.NTaskInfo">
+    	select * from TaskInfo 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getRunningTaskByArrayId" resultMap="nTaskInfo" parameterType="String">
+    	select * from TaskInfo where arrayid=#{arrayId} and taskstate='Running';
+    </select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.NTaskInfo">
+    	delete from TaskInfo
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.NTaskInfo">
+    	update TaskInfo
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+</mapper>

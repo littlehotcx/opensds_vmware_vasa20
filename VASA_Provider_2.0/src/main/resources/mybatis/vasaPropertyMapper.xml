@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VasaPropertyDao">
+	<resultMap id="vasaProperty" type="org.opensds.vasa.vasa.db.model.VasaProperty">
+    	<result property="id" column="id" />
+    	<result property="name" column="name" />
+		<result property="desc" column="description" />
+		<result property="value" column="value" />
+		<result property="type" column="type" />
+    </resultMap>
+    
+  
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="id != null">
+    			id=#{id}
+    		</if>
+    		<if test="name != null">
+    			and name=#{name}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="value != null"> value=#{value} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.VasaProperty">
+    	insert into vasaproperty
+    	values(
+    		SEQ_VasaProperty.nextval,
+    		#{name} ,
+    		#{desc} ,
+    		#{value} ,
+    		#{type}
+    	)
+    </insert>
+    
+    <select id="getAll" resultMap="vasaProperty">
+    	select * from vasaproperty order by id;
+    </select>
+    
+    <select id="search" resultMap="vasaProperty" parameterType="org.opensds.vasa.vasa.db.model.VasaProperty">
+    	select * from vasaproperty 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getDataByKey" resultMap="vasaProperty" parameterType="org.opensds.vasa.vasa.db.model.VasaProperty">
+    	select * from vasaproperty 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.VasaProperty">
+    	delete from vasaproperty
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.VasaProperty">
+    	update vasaproperty
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+</mapper>

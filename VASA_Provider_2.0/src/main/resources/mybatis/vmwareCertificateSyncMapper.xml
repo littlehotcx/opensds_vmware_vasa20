@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VmwareCertificateSyncDao">
+
+	<resultMap id="nVmwareCertificateSync" type="org.opensds.vasa.vasa.db.model.NVmwareCertificateSync">
+    	<result property="id" column="id" />
+    	<result property="vcid" column="vcid" />
+		<result property="syncIp" column="syncIP" />
+		<result property="syncTime" column="syncTime" />
+    </resultMap>
+    
+     <insert id="addVmwareCertificateSync" parameterType="org.opensds.vasa.vasa.db.model.NVmwareCertificateSync">
+    	insert into VmwareCertificateSync
+    	values(
+    		seq_vmwarecertificatesync.nextval,
+    		#{vcid},
+    		#{syncIp} ,
+    		#{syncTime}
+    	)
+    </insert>
+</mapper>

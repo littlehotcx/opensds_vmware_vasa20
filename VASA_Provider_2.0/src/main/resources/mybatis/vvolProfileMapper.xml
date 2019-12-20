@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VvolProfileDao">
+	<resultMap id="nVvolProfile" type="org.opensds.vasa.vasa.db.model.NVvolProfile">
+    	<result property="id" column="id" />
+		<result property="vvolid" column="vvolid" />
+		<result property="profileName" column="profileName" />
+		<result property="profileId" column="profileId" />
+		<result property="createdBy" column="createdBy" />
+		<result property="creationTime" column="creationTime" />
+		<result property="generationId" column="generationId" />
+		<result property="capability" column="capability" />
+		<result property="type" column="type" />
+		<result property="value" column="value" />
+    </resultMap>
+
+   	<select id="getVvolProfileByVvolId" resultMap="nVvolProfile" parameterType="String">
+    	select * from VvolProfile where vvolid = #{vvolid}
+    </select>
+
+    <select id="getVvolNumByProfileIdAndGenerationId" resultType="int" parameterType="java.util.Map">
+        select count(*) from VvolProfile where profileId = #{profileId} and generationId = #{generationId}
+    </select>
+
+    <select id="getVvolNumByProfileId" resultType="int" parameterType="String">
+        select count(*) from VvolProfile where profileId = #{profileId}
+    </select>
+
+    <insert id="addVvolProfile" parameterType="org.opensds.vasa.vasa.db.model.NVvolProfile">
+    	insert into VvolProfile
+    	values(
+    		seq_vvolProfile.nextval ,
+    		#{vvolid} ,
+    		#{profileName} ,
+    		#{profileId} ,
+    		#{createdBy} ,
+    		#{creationTime} ,
+    		#{generationId} ,
+    		#{capability} ,
+    		#{type} ,
+    		#{value}
+    	)
+    </insert>
+
+    <delete id="deleteVvolProfileByVvolId" parameterType="String">
+		delete from VvolProfile where vvolid = #{vvolid}
+    </delete>
+
+     <delete id="deleteVvolProfileByVvolIdExceptCap" parameterType="String">
+		<![CDATA[delete from VvolProfile where vvolid = #{vvolid} and capability <> 'spaceEfficiency']]>
+    </delete>
+
+    <select id="getThinThickVvolProfile" resultMap="nVvolProfile" parameterType="String">
+    	select * from VvolProfile where vvolid = #{vvolid} and capability = 'spaceEfficiency'
+    </select>
+    
+</mapper>

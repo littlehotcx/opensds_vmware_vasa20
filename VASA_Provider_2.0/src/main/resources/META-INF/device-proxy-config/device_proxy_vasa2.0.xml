@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<proxys>
+	<deviceProxy>
+		<className>org.opensds.vasa.vasa20.device.VASADevice</className>
+		<deviceType>DJ</deviceType>
+		<startVersion>V300R002C10</startVersion>
+		<endVersion></endVersion>
+	</deviceProxy>
+</proxys>

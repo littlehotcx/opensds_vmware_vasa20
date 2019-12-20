@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ /*
+  ~  * // Copyright 2019 The OpenSDS Authors.
+  ~  * //
+  ~  * // Licensed under the Apache License, Version 2.0 (the "License"); you may
+  ~  * // not use this file except in compliance with the License. You may obtain
+  ~  * // a copy of the License at
+  ~  * //
+  ~  * //     http://www.apache.org/licenses/LICENSE-2.0
+  ~  * //
+  ~  * // Unless required by applicable law or agreed to in writing, software
+  ~  * // distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  ~  * // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  ~  * // License for the specific language governing permissions and limitations
+  ~  * // under the License.
+  ~  *
+  ~  */
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.platform.config.dao.PlatformStorageManagerDao">
+	<resultMap id="StorageInfo" type="org.opensds.platform.domain.PlatformStorageInfo">
+		<result property="id" column="arrayid" />
+		<result property="ip" column="ip" />
+		<result property="ips" column="ips" />
+		<result property="port" column="port" />
+		<result property="username" column="username" />
+		<result property="password" column="password" />
+		<result property="devicestatus" column="devicestatus" />
+		<result property="model" column="model" />
+		<result property="storagename" column="storagename" />
+		<result property="productversion" column="productversion" />
+		<result property="registered" column="registered" />
+		<result property="sn" column="sn" />
+		<result property="vendor" column="vendor" />
+		<result property="supportvvol" column="supportvvol" />
+        <result property="createtime" column="createtime" />
+		<result property="updatetime" column="updatetime" />
+		<result property="deletetime" column="deletetime" />
+		<result property="deleted" column="deleted" />
+	</resultMap>
+
+	<select id="queryInfo" resultMap="StorageInfo">
+         select * from StorageArray where deviceStatus = 'ONLINE' and deleted = '0'
+   </select> 
+   
+   <select id="queryAllArrays" resultMap="StorageInfo">
+   		select * from StorageArray where deleted = '0'
+   </select>
+	
+    <update id="modifyInfo" parameterType="org.opensds.platform.domain.PlatformStorageInfo">
+         update StorageArray set password = #{password} where arrayid = #{id}
+    </update>    
+</mapper>

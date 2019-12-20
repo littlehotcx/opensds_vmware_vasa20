@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.ArrayCertificateDao">
+
+	<resultMap id="nArrayCertificate" type="org.opensds.vasa.vasa.db.model.NArrayCertificate">
+    	<result property="id" column="id" />
+    	<result property="arrayid" column="arrayid" />
+		<result property="cacontent" column="CAContent" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.BlobTypeHandler"/>
+		<result property="createTime" column="createTime" />
+    </resultMap>
+    
+    <resultMap type="org.opensds.vasa.vasa.db.model.NMultiVcCertificate" id="nMultiVcCertificate">
+    	<result property="cacontent" column="CAContent" jdbcType="BLOB" typeHandler="org.apache.ibatis.type.BlobTypeHandler"/>
+		<result property="createTime" column="createTime" />
+    </resultMap>
+    
+     <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NArrayCertificate"
+      useGeneratedKeys="true" keyProperty="id">
+    	insert into ArrayCertificate
+    	values(
+    		seq_arraycertificate.nextval,
+    		#{arrayid},
+    		#{cacontent,jdbcType=BLOB} ,
+    		#{createTime}
+    	)
+    </insert>
+    
+     <select id="getall" resultMap="nArrayCertificate" parameterType="String">
+    	select * from ArrayCertificate
+    </select>
+    
+    <select id="getByArrayId" resultMap="nArrayCertificate"  parameterType="String">
+    	select * from ArrayCertificate where arrayid=#{arrayid}
+    </select>
+    
+     <delete id="delete" parameterType="Integer">
+		delete from ArrayCertificate where id=#{id};
+    </delete>
+    
+    <select id="queryNeedSyncArrayCerts" resultMap="nArrayCertificate" parameterType="String">
+    	select * from ArrayCertificate t 
+    	where not exists 
+    	(select cerId from ArrayCertificateSync where syncIP = #{syncIp} and t.arrayid = cerId )
+    </select>
+    
+    <insert id="saveMultiVcCertificate" parameterType="org.opensds.vasa.vasa.db.model.NMultiVcCertificate">
+    	insert into MultiVcCertificate
+    	values(
+    		#{cacontent,jdbcType=BLOB} ,
+    		#{createTime}
+    	)
+    </insert>
+    
+    <select id="getMultiVcCertificate" resultMap="nMultiVcCertificate">
+    	select * from MultiVcCertificate
+    </select>
+    
+</mapper>

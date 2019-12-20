@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ /*
+  ~  * // Copyright 2019 The OpenSDS Authors.
+  ~  * //
+  ~  * // Licensed under the Apache License, Version 2.0 (the "License"); you may
+  ~  * // not use this file except in compliance with the License. You may obtain
+  ~  * // a copy of the License at
+  ~  * //
+  ~  * //     http://www.apache.org/licenses/LICENSE-2.0
+  ~  * //
+  ~  * // Unless required by applicable law or agreed to in writing, software
+  ~  * // distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  ~  * // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  ~  * // License for the specific language governing permissions and limitations
+  ~  * // under the License.
+  ~  *
+  ~  */
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/aop   
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" lazy-init="true"/>
+	<bean id="platformApplicationDataSourceFactory"
+		class="org.opensds.platform.config.util.ApplictionDataSourceFactory" lazy-init="true"/>
+	<bean id="platformDataSource" factory-bean="platformApplicationDataSourceFactory"
+		factory-method="buildLocalDataSource" lazy-init="true">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<!-- <property name="url" value="jdbc:postgresql://8.46.134.144:5432/VASA" 
+			/> <property name="username" value="openstack" /> -->
+		<property name="url" value="${dataBase_url}" />
+		<property name="username" value="${dataBase_username}" />
+		<property name="maxTotal" value="100" />
+		<property name="maxIdle" value="30" />
+		<property name="maxWaitMillis" value="500" />
+		<property name="defaultAutoCommit" value="true" />
+		<!-- SQL查询,用来验证从连接池取出的连接,在将连接返回给调用者之前.如果指定,则查询必须是一个SQL SELECT并且必须返回至少一行记录 -->
+		<property name="validationQuery">
+			<value>SELECT 1</value>
+		</property>
+		<!-- 指明是否在从池中取出连接前进行检验,如果检验失败,则从池中去除连接并尝试取出另一个 -->
+		<property name="testOnBorrow" value="true" />
+		<!-- 指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除 -->
+		<property name="testWhileIdle" value="true" />
+		<!-- 在空闲连接回收器线程运行期间休眠的时间值,以毫秒为单位.如果设置为非正数,则不运行空闲连接回收器线程 -->
+		<property name="timeBetweenEvictionRunsMillis" value="600000" />
+		<!-- 连接在池中保持空闲而不被空闲连接回收器线程(如果有)回收的最小时间值，单位毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+	</bean>
+
+	<bean id="platformSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" lazy-init="true">
+		<property name="configLocation"
+			value="classpath:mybatis/platform_mybatis_mapper_conf.xml"></property>
+		<property name="dataSource" ref="platformDataSource" />
+	</bean>
+
+
+	<bean id="platformStorageManagerDao" class="org.mybatis.spring.mapper.MapperFactoryBean" lazy-init="true">
+		<property name="mapperInterface"
+			value="org.opensds.platform.config.dao.PlatformStorageManagerDao"></property>
+		<property name="sqlSessionFactory" ref="platformSqlSessionFactory"></property>
+	</bean>
+	<bean id="platformStorageManagerService"
+		class="org.opensds.platform.config.service.PlatformStorageManagerServiceImpl" lazy-init="true">
+		<property name="storageManagerDao" ref="platformStorageManagerDao"></property>
+	</bean>
+</beans>

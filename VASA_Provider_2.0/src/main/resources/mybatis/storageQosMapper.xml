@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.StorageQosDao">
+	<resultMap id="nStorageQos" type="org.opensds.vasa.vasa.db.model.NStorageQos">
+    	<result property="id" column="id" />
+    	<result property="rawQosId" column="rawQosId" />
+		<result property="name" column="name" />
+		<result property="description" column="description" />
+		<result property="status" column="status" />
+		<result property="controlType" column="controlType" />
+		<result property="controlPolicy" column="controlPolicy" />
+		<result property="bandWidth" column="bandWidth" />
+		<result property="iops" column="iops" />
+		<result property="latency" column="latency" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+		<result property="deletedTime" column="deletedTime" />
+		<result property="deleted" column="deleted" />
+    </resultMap>
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="id != null">
+    			id=#{id}
+    		</if>
+    		<if test="name != null">
+    			and name=#{name}
+    		</if>
+    		<if test="description != null">
+    			and description=#{description}
+    		</if>
+    		<if test="deleted != null">
+    			and coalesce(deleted,'false')=#{deleted}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="name != null"> name=#{name}, </if>
+    		<if test="description != null"> description=#{description}, </if>
+    		<if test="status != null"> status=#{status}, </if>
+    		<if test="controlType != null"> controlType=#{controlType}, </if>
+    		<if test="controlPolicy != null"> controlPolicy=#{controlPolicy}, </if>
+    		<if test="bandWidth != null"> bandWidth=#{bandWidth}, </if>
+    		<if test="iops != null"> iops=#{iops}, </if>
+    		<if test="latency != null"> latency=#{latency}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime}, </if>
+    		<if test="deletedTime != null"> deletedTime=#{deletedTime}, </if>
+    		<if test="deleted != null"> deleted=#{deleted} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NStorageQos">
+    	insert into StorageQos 
+    	values(
+    		#{id} ,
+    		#{rawQosId} ,
+    		#{name} ,
+    		#{description} ,
+    		#{status} ,
+    		#{controlType} ,
+    		#{controlPolicy} ,
+    		#{bandWidth} ,
+    		#{iops} ,
+    		#{latency} ,
+    		#{createdTime} ,
+    		#{updatedTime} ,
+    		#{deletedTime} ,
+    		#{deleted}
+    	)
+    </insert>
+    
+    <select id="getAll" resultMap="nStorageQos">
+    	select * from StorageQos
+    </select>
+    
+    <select id="search" resultMap="nStorageQos" parameterType="org.opensds.vasa.vasa.db.model.NStorageQos">
+    	select * from StorageQos 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getDataByKey" resultMap="nStorageQos" parameterType="org.opensds.vasa.vasa.db.model.NStorageQos">
+    	select * from StorageQos 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.NStorageQos">
+    	delete from StorageQos
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.NStorageQos">
+    	update StorageQos
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+    <select id="getStorageQosByQosId" resultMap="nStorageQos" parameterType="String">
+    	select * from StorageQos where id =#{id}
+    </select>
+
+    <update id="updateStorageQosByQosId" parameterType="org.opensds.vasa.vasa.db.model.NStorageQos">
+    	update StorageQos set name = #{name} , controlType = #{controlType} , rawQosId = #{rawQosId} ,  
+    	controlPolicy = #{controlPolicy} , bandWidth = #{bandWidth} , iops = #{iops} , latency = #{latency} ,
+    	updatedTime = #{updatedTime} where id = #{id}
+    </update>
+    
+	<update id="deleteStorageQosByQosId" parameterType="org.opensds.vasa.vasa.db.model.NStorageQos">
+    	update StorageQos set deleted = true , deletedTime = #{deletedTime} where id = #{id}
+    </update>
+</mapper>

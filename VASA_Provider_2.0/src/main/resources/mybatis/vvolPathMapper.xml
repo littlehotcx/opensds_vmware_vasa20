@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VvolPathDao">
+	<resultMap id="nVvolPath" type="org.opensds.vasa.vasa.db.model.VvolPath">
+		<result property="vvolid" column="vvolid" />
+		<result property="fileSystemId" column="fileSystemId" />
+		<result property="fileSystemName" column="fileSystemName" />
+		<result property="path" column="path" />
+		<result property="sharePath" column="sharePath" />
+		<result property="shareId" column="shareId" />
+		<result property="snapshotId" column="snapshotId" />
+		<result property="isBind" column="isBind" />
+	</resultMap>
+	
+	<select id="getVvolPathByVvolId" resultMap="nVvolPath" parameterType="String">
+    	select * from VvolPath where vvolid = #{vvolid}
+    </select>
+    
+    <select id="getVvolPathByFuzzySystemName" resultMap="nVvolPath" parameterType="String">
+        select * from VvolPath where fileSystemName like '#{fileSystemName}%'
+    </select>
+    
+    <select id="queryAllRecordByFileSystem" resultMap="nVvolPath" parameterType="String">
+        select * from VvolPath where fileSystemName = #{fileSystemName}
+    </select>
+    
+    <update id="updateVvolId" parameterType="org.opensds.vasa.vasa.db.model.VvolPath">
+        update VvolPath set vvolid = #{vvolid} where fileSystemName = #{fileSystemName}
+    </update>
+
+
+	<insert id="insertRecord" parameterType="org.opensds.vasa.vasa.db.model.VvolPath">
+    	insert into VvolPath
+    	values(
+    		#{vvolid} ,
+    		#{fileSystemId} ,
+    		#{fileSystemName} ,
+    		#{path} ,
+    		#{sharePath} ,
+    		#{shareId} ,
+		    #{snapshotId},
+		    #{isBind}
+    	)
+    </insert>
+
+	<delete id="deleteVvolPathByVvolId" parameterType="String">
+		delete from VvolPath where vvolid = #{vvolid}
+    </delete>
+
+	<select id="isBindState" resultType="java.lang.Boolean" parameterType="String">
+    	select isBind from VvolPath where vvolid = #{vvolid}
+    </select>
+
+
+	<update id="setBindState" parameterType="org.opensds.vasa.vasa.db.model.VvolPath">
+        update VvolPath set isBind = #{isBind} where vvolid = #{vvolid}
+    </update>
+
+
+</mapper>

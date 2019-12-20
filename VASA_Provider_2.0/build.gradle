@@ -1,0 +1,225 @@
+File configFile = new File("D:/build/temp.txt")
+String ciFlag;
+if (configFile.exists()) {
+	ciFlag = configFile.getText();
+}
+if ("Y" == ciFlag) {
+	ext.tempDir = file("$project.projectDir/../../../../../../..").absolutePath
+	ext.esdkSrcRootDir = file("$tempDir/eSDK_Platform_V1R5_Server/code/current").absolutePath
+
+	apply from: "$tempDir/eSDK_Platform_V1R5_Server/code/current/eSDK_Platform_V100R005/Server/source/platform_tools/release_package/common_methods.gradle"
+
+	allprojects {
+		apply from: "$tempDir/eSDK_Platform_V1R5_Server/code/current/eSDK_Platform_V100R005/Server/source/platform_tools/release_package/common_allprojects.gradle"
+	}
+	subprojects {
+		apply from: "$tempDir/eSDK_Platform_V1R5_Server/code/current/eSDK_Platform_V100R005/Server/source/platform_tools/release_package/common_subprojects.gradle"
+		
+		repositories {
+			flatDir { dirs "$tempDir/eSDK_Storage_V1R5_VASA_Provider_20/code/current/eSDK_Storage_V100R005/Server/third_party" }
+		}
+	}
+} else {
+	ext.esdkSrcRootDir = file("$project.projectDir/../../../..").absolutePath
+
+	apply from: "$esdkSrcRootDir/eSDK_Platform_V100R005/Server/source/platform_tools/release_package/common_methods.gradle"
+
+	allprojects {
+		apply from: "$esdkSrcRootDir/eSDK_Platform_V100R005/Server/source/platform_tools/release_package/common_allprojects.gradle"
+	}
+	subprojects {
+		apply from: "$esdkSrcRootDir/eSDK_Platform_V100R005/Server/source/platform_tools/release_package/common_subprojects.gradle"
+		
+		repositories {
+			flatDir { dirs "$esdkSrcRootDir/eSDK_Storage_V100R005/Server/third_party" }
+		}
+		
+	}
+}
+
+def addDependentProject(proj, cfg, jarOrProjName) {
+	if (proj.rootProject.findProject(jarOrProjName) != null) {
+		 proj.dependencies.add(cfg, this.project(":$jarOrProjName"))
+	} else {
+		proj.dependencies.add(cfg, ":$jarOrProjName")
+	}
+}
+
+task cleanVASAPackage(type:Delete) {
+	ext.tempDir = "esdk_vasa_win"
+	def dirList = []
+	project.fileTree(ext.tempDir).visit {element ->
+		dirList.push "$ext.tempDir/$element.path"
+	}
+	dirList.reverseEach { String dirName ->
+		delete project.file(dirName)
+	}
+}
+
+task preBuildVASAProject() << {
+	tasks["cleanVASAPackage"].execute()
+	tasks["zipThirdPartyPackage"].execute()
+}
+
+task makeVASAProductPackage << {
+	FileTree vasaTree = fileTree(".") {
+		include "**/esdk_vasa*/build/distributions/*.zip"
+		include "**/build/distributions/win/*.zip"
+	}
+	vasaTree.each {File f ->
+		copy {
+			println("->Copy file: " + f.name);
+			from f
+			into project.file('esdk_vasa_win')
+		}
+	}
+}
+
+task buildProduct << {
+	tasks["preBuildVASAProject"].execute()
+	tasks["makeVASAProductPackage"].execute()
+}
+
+task packageVASA(type:Zip) {
+	archiveName = "eSDK_VASA_${project.ProductVersion}.zip"
+	from project.file("esdk_vasa_win")
+	destinationDir project.file(".")
+}
+
+
+task makePackage() << {
+	tasks["packageVASA"].execute()
+}
+
+// 鐎靛湱顑囨稉澶嬫煙鎼存挻澧﹂崠锟�
+task zipThirdPartyPackage(type:Zip) {
+	delete project.file("build/zipTemp1")
+	delete project.file("build/distributions/win")
+	
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/cxf-3.3.1")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/httpclient-4.5.7")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/spring-5.1.5")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/restlet-2.4")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}	
+	
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/oceanstor-openapi_2.1.15")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/slf4j-api-1.7.21")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/mybatis-spring-1.3.2")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/logback-core-1.2.3")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/logback-classic-1.2.3")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/json-20180813")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/httpcore-4.4.9")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/httpclient-4.5.5")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/gson-2.8.2")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/commons-logging-1.2")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/commons-lang3-3.7")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/commons-io-2.6")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/commons-codec-1.11")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}	
+	
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/third_party/JCE-8")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/source/platform_tools/bin")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Platform_V100R005/Server/platform/OpenAS/ONIP_SOABean_OpenAS_Tomcat7_V300R005C00/tools/encryption")
+		include '*.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Storage_V100R005/Server/third_party/")
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/eSDK_Storage_V100R005/Server/platform/")
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	copy {
+		from project.file("$esdkSrcRootDir/lib_for_business")
+		include 'vasa20.jar'
+		into project.file("build/zipTemp1/esdk/webcontent/WEB-INF/lib")
+	}
+	
+	from file("build/zipTemp1")
+	into ""
+	
+	destinationDir file("$esdkSrcRootDir/eSDK_Storage_V100R005/Server/source/VASA_Provider_2.0/build/distributions/win")
+	archiveName "esdksvr-vasa-thirdPartyComponents.zip"
+}

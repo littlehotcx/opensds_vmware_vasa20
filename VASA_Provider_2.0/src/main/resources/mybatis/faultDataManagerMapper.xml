@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.FaultDataManagerDao">
+	<resultMap id="faultData" type="org.opensds.vasa.vasa.db.model.FaultData">
+		<result property="vvolType" column="vvolType" />
+		<result property="sourceType" column="sourceType" />
+		<result property="vvolSize" column="size" />
+		<result property="vvolCreateTime" column="creationTime" />
+		<result property="vvolCreateBy" column="createdBy" />
+		<result property="vvolId" column="vvolid" />
+		<result property="vvolContainerId" column="containerId" />
+		<result property="containerName" column="containerName" />
+		<result property="status" column="status" />
+		<result property="vmId" column="vmId" />
+	</resultMap>
+
+	<resultMap id="faultDataMetaData"
+		type="org.opensds.vasa.vasa.db.model.FaultDataMetaData">
+		<result property="vvolId" column="vvolid" />
+		<result property="key" column="key" />
+		<result property="value" column="value" />
+	</resultMap>
+
+	<select id="queryFaultData" resultMap="faultData" parameterType="String">
+		select volume.*,sc.containerName
+		from
+		VirtualVolume volume left join VvolMetadata metadata
+		on (volume.vvolid = metadata.vvolid and metadata.key = 'VMW_VVolName')
+		left join storageContainer sc on (volume.containerId = sc.containerId)
+			where 1=1
+			<if test="keyword != null and keyword != ''">
+				<if test="searchField !=null and searchField == 'vvolName' ">
+					and metadata.value like concat('%',#{keyword},'%')
+				</if>	
+				<if test="searchField !=null and searchField == 'vvolType' ">
+					and volume.vvolType like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'sourceType' ">
+					and volume.sourceType like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'vvolId' ">
+					and volume.vvolid like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'status' ">
+					and volume.status like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'vmId' ">
+					and volume.vmId like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'vmName' ">
+					and volume.vmName like concat('%',#{keyword},'%')
+				</if>
+		</if>
+		group by volume.vvolType, volume.sourceType, volume.vvolid,
+		volume.createdBy, volume.containerId, sc.containerName, volume.creationTime,volume.vmId,
+		metadata.key ,metadata.value
+		order by volume.vmId asc,volume.status desc,volume.creationTime desc
+		limit #{perPageRecords} offset #{from}
+	</select>
+
+	<select id="queryFaultDataMetaData" resultMap="faultDataMetaData"
+		parameterType="String">
+		select * from VvolMetadata where vvolid = #{vvolId}
+	</select>
+	
+	
+
+	<select id="queryFaultDataCount" resultType="Integer"
+		parameterType="String">
+		select count(distinct volume.vvolid)
+		from
+		VirtualVolume volume left join VvolMetadata metadata
+		on (volume.vvolid = metadata.vvolid and metadata.key = 'VMW_VVolName')
+		where 1=1
+			<if test="keyword != null and keyword != ''">
+				<if test="searchField !=null and searchField == 'vvolName' ">
+					and metadata.value like concat('%',#{keyword},'%')
+				</if>	
+				<if test="searchField !=null and searchField == 'vvolType' ">
+					and volume.vvolType like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'sourceType' ">
+					and volume.sourceType like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'vvolId' ">
+					and volume.vvolid like concat('%',#{keyword},'%')
+				</if>
+				<if test="searchField !=null and searchField == 'status' ">
+					and volume.status like concat('%',#{keyword},'%')
+				</if>
+		</if>
+	</select>
+
+	<delete id="delFaultData" parameterType="String">
+		delete from VvolProfile
+		where vvolid = #{vvolId};
+		delete from VirtualVolume where vvolid =
+		#{vvolId};
+		delete from VvolMetadata where vvolid = #{vvolId};
+	</delete>
+</mapper>

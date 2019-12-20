@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.FilesystemShareTableDao">
+    <resultMap id="nFilesystemShareTable" type="org.opensds.vasa.vasa.db.model.FilesystemShareTable">
+        <result property="filesystemId" column="filesystemId" />
+        <result property="sharePath" column="sharePath" />
+        <result property="shareId" column="shareId" />
+        <result property="hostId" column="hostId" />
+    </resultMap>
+    
+    <select id="queryRecodeByShareName" resultMap="nFilesystemShareTable" parameterType="String">
+        select * from FilesystemShareTable where sharePath = #{sharePath}
+    </select>
+    
+    <select id="queryAllShare" resultMap="nFilesystemShareTable">
+        select * from FilesystemShareTable
+    </select>
+
+	<update id="updateHostId" parameterType="org.opensds.vasa.vasa.db.model.FilesystemShareTable">
+    	update FilesystemShareTable set hostId = #{hostId} where sharePath = #{sharePath}
+    </update>
+
+    <insert id="insertRecord" parameterType="org.opensds.vasa.vasa.db.model.FilesystemShareTable">
+        insert into FilesystemShareTable
+        values(
+            #{filesystemId} ,
+            #{sharePath} ,
+            #{shareId},
+            #{hostId}
+        )
+    </insert>
+
+    <delete id="deleteRecordByShareName" parameterType="String">
+        delete from FilesystemShareTable where sharePath = #{sharePath}
+    </delete>
+
+</mapper>

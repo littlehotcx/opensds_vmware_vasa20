@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:cxf="http://cxf.apache.org/core" xmlns:soap="http://cxf.apache.org/bindings/soap"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	   http://www.springframework.org/schema/beans/spring-beans.xsd
+   	   http://cxf.apache.org/jaxws 
+	   http://cxf.apache.org/schemas/jaxws.xsd 
+	   http://cxf.apache.org/core 
+	   http://cxf.apache.org/schemas/core.xsd 
+	   http://cxf.apache.org/bindings/soap 
+	   http://cxf.apache.org/schemas/configuration/soap.xsd ">
+
+	<bean id="abstractLoggingInterceptor" abstract="true">
+		<property name="prettyLogging" value="true" />
+	</bean>
+
+	<bean id="vasaInbound" class="org.opensds.vasa.vasa.interceptor.VASAInInterceptor"/>
+		
+	<bean id="logInbound" class="org.opensds.vasa.vasa.interceptor.VASALoggingInInterceptor"
+		parent="abstractLoggingInterceptor" />
+
+	<bean id="logOutbound" class="org.opensds.vasa.vasa.interceptor.VASALoggingOutInterceptor"
+		parent="abstractLoggingInterceptor" />
+
+	<cxf:bus>
+		<cxf:inInterceptors>
+			<ref bean="vasaInbound" />
+			<ref bean="logInbound" />
+		</cxf:inInterceptors>
+		<cxf:outInterceptors>
+			<ref bean="logOutbound" />
+		</cxf:outInterceptors>
+		<cxf:outFaultInterceptors>
+			<ref bean="vasaInbound" />
+			<ref bean="logOutbound" />
+		</cxf:outFaultInterceptors>
+		<cxf:inFaultInterceptors>
+			<ref bean="logInbound" />
+		</cxf:inFaultInterceptors>
+	</cxf:bus>
+	
+	<jaxws:server serviceClass="com.vmware.vim.vasa.v20.VasaServicePortType"
+		address="/vasaService">
+		<jaxws:binding>
+			<soap:soapBinding version="1.2" mtomEnabled="true" />
+		</jaxws:binding>
+		<jaxws:properties>
+			<entry key="schema-validation-enabled" value="true" />
+			<entry key="schema-validation-response-enabled" value="false" />
+		</jaxws:properties>
+		<jaxws:serviceBean>
+			<ref bean="VasaServicePortTypeImpl" />
+		</jaxws:serviceBean>
+	</jaxws:server>
+</beans>

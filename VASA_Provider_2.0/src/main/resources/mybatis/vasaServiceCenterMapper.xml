@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.VasaServiceCenterDao">
+
+	<resultMap id="nVasaServiceCenter" type="org.opensds.vasa.vasa.db.model.NVasaServiceCenter">
+    	<result property="id" column="id" />
+    	<result property="serviceIp" column="serviceIp" />
+		<result property="servicePort" column="servicePort" />
+		<result property="serviceIsMaster" column="serviceIsMaster" />
+		<result property="lastModifiedTime" column="lastModifiedTime" />
+    </resultMap>
+    
+    <select id="queryVasaService" resultMap="nVasaServiceCenter" parameterType="String">
+    	select * from VASAServiceCenter where <![CDATA[serviceIp <> #{serviceIp} ]]>
+    </select>
+    
+     <select id="queryCurrentMaster" resultMap="nVasaServiceCenter">
+    	select * from VASAServiceCenter where serviceIsMaster = '0'
+    </select>
+    
+    <insert id="addVasaService" parameterType="org.opensds.vasa.vasa.db.model.NVasaServiceCenter">
+    	insert into VASAServiceCenter 
+    	values(
+    		SEQ_VASASERVICECENTER.nextval ,
+    		#{serviceIp} ,
+    		#{servicePort} ,
+    		#{serviceIsMaster} ,
+    		#{lastModifiedTime}
+    	)
+    </insert>
+    
+    <select id="getVasaServiceByServiceIp" resultMap="nVasaServiceCenter" parameterType="String">
+    	select * from VASAServiceCenter where serviceIp = #{serviceIp}
+    </select>
+    
+    <select id="queryAllService" resultMap="nVasaServiceCenter">
+    	select * from VASAServiceCenter
+    </select>
+    
+    <update id="completeMaster" parameterType="java.util.Map">
+        update VASAServiceCenter set serviceIsMaster ='0', lastModifiedTime = #{modifyTime} where serviceIp = #{serviceIp};
+        update VASAServiceCenter set serviceIsMaster = '1' where <![CDATA[serviceIp <> #{serviceIp} ]]>
+    </update>
+    
+    <update id="updateMaster" parameterType="java.util.Map">
+    	update VASAServiceCenter set lastModifiedTime = #{modifyTime} where serviceIp = #{serviceIp}
+    </update>
+</mapper>

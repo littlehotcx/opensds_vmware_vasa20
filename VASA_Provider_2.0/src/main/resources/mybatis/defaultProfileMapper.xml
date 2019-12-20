@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.DefaultProfileDao">
+	<resultMap id="nDefaultProfile" type="org.opensds.vasa.vasa.db.model.NDefaultProfile">
+    	<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="profileId" column="profileId" />
+		<result property="proName" column="proName" />
+		<result property="proType" column="proType" />
+		<result property="proRequirementsTypeHint" column="proRequirementsTypeHint" />
+		<result property="proValue" column="proValue" />
+		<result property="createdAt" column="created_at" />
+    </resultMap>
+    
+   	<select id="getAllDefaultProfile" resultMap="nDefaultProfile" >
+    	select * from DefaultProfile
+    </select>
+</mapper>

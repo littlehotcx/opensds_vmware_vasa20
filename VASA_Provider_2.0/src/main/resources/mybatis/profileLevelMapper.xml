@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa.db.dao.ProfileLevelDao">
+	<resultMap id="nProfileLevel" type="org.opensds.vasa.vasa.db.model.NProfileLevel">
+    	<result property="profileLevelId" column="profileLevelId" />
+    	<result property="userLevel" column="userLevel" />
+		<result property="serviceType" column="serviceType" />
+		<result property="createdTime" column="createdTime" />
+		<result property="updatedTime" column="updatedTime" />
+		<result property="deletedTime" column="deletedTime" />
+		<result property="deleted" column="deleted" />
+    </resultMap>
+    
+    <sql id="sql_where">
+    	<where>
+    		<if test="profileLevelId != null">
+    			profileLevelId=#{profileLevelId}
+    		</if>
+    	</where>
+    </sql>
+    
+    <sql id="sql_set">
+    	<set>
+    		<if test="profileLevelId != null"> profileLevelId=#{profileLevelId}, </if>
+    		<if test="userLevel != null"> userLevel=#{userLevel}, </if>
+    		<if test="serviceType != null"> serviceType=#{serviceType}, </if>
+    		<if test="updatedTime != null"> updatedTime=#{updatedTime}, </if>
+    		<if test="deletedTime != null"> deletedTime=#{deletedTime}, </if>
+    		<if test="deleted != null"> deleted=#{deleted} </if>
+    	</set>
+    </sql>
+    <insert id="save" parameterType="org.opensds.vasa.vasa.db.model.NProfileLevel">
+    	insert into ProfileLevel
+    	values(
+    		#{profileLevelId},
+    		#{userLevel} ,
+    		#{serviceType} ,
+    		#{createdTime} ,
+    		#{updatedTime} ,
+    		#{deletedTime} ,
+    		#{deleted}
+    	)
+    </insert>
+    
+    <select id="getAll" resultMap="nProfileLevel">
+    	select * from ProfileLevel where deleted is null or deleted = false;
+    </select>
+    
+    <select id="search" resultMap="nProfileLevel" parameterType="org.opensds.vasa.vasa.db.model.NProfileLevel">
+    	select * from ProfileLevel 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <select id="getDataByKey" resultMap="nProfileLevel" parameterType="org.opensds.vasa.vasa.db.model.NProfileLevel">
+    	select * from ProfileLevel 
+    	<include refid="sql_where"></include>
+    </select>
+    
+    <delete id="delete" parameterType="org.opensds.vasa.vasa.db.model.NProfileLevel">
+    	delete from ProfileLevel
+    	<include refid="sql_where"></include>
+    </delete>
+    
+    <update id="updateData" parameterType="org.opensds.vasa.vasa.db.model.NProfileLevel">
+    	update ProfileLevel
+    	<include refid="sql_set"></include>
+    	<include refid="sql_where"></include>
+    </update>
+    
+    <select id="getConfiguredLevelCount" resultType="int" parameterType="String">
+    	select count(1) from ProfileLevel where userlevel = #{level}
+    </select>
+</mapper>

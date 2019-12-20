@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.opensds.vasa.vasa20.device.array.db.dao.StorageArrayDao">
+
+	<resultMap id="nStorageArrayBean" type="org.opensds.vasa.vasa20.device.array.db.model.NStorageArrayBean">
+    	<result property="arrayId" column="ArrayID" />
+		<result property="ip" column="IP" />
+		<result property="ips" column="IPS" />
+		<result property="port" column="PORT" />
+		<result property="uname" column="USERNAME" />
+		<result property="upass" column="PASSWORD" />
+		<result property="deviceStatus" column="DeviceStatus" />
+		<result property="model" column="model" />
+		<result property="storageName" column="storageName" />
+		<result property="productVersion" column="productVersion" />
+		<result property="registered" column="registered" />
+		<result property="sn" column="sn" />
+		<result property="vendor" column="vendor" />
+		<result property="supportVvol" column="supportVvol" />
+		<result property="createTime" column="createTime" />
+		<result property="updateTime" column="updateTime" />
+		<result property="deleteTime" column="DeleteTime" />
+		<result property="deleted" column="Deleted" />
+    </resultMap>
+    
+   	<select id="getAllStorageArray" resultMap="nStorageArrayBean" >
+    	select * from StorageArray where deviceStatus = 'ONLINE' and deleted = '0'
+    </select>
+    
+    <select id="getArrayControllIPS" resultMap="nStorageArrayBean" parameterType="String">
+    	select * from StorageArray where ArrayID = #{arrayId}
+    </select>
+    
+    <update id="updateArrayControllerIP" parameterType="java.util.Map">
+    	update StorageArray set DeviceStatus=#{DeviceStatus} 
+    	<if test='ip != ""'>,IP=#{ip}</if>
+    	where ArrayID = #{arrayId}
+    </update>
+</mapper>

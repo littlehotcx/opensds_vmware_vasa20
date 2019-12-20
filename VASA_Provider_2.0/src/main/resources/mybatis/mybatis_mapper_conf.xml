@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="logImpl" value="LOG4J2"/>
+	</settings>
+	<mappers>
+		<mapper resource="mybatis/capabilityMetadataMapper.xml" />
+		<mapper resource="mybatis/defaultProfileMapper.xml"/>
+		<mapper resource="mybatis/virtualVolumeMapper.xml"/>
+		<mapper resource="mybatis/vvolMetadataMapper.xml"/>
+		<mapper resource="mybatis/vvolProfileMapper.xml"/>
+		<mapper resource="mybatis/profile2VolTypeMapper.xml"/>
+		<mapper resource="mybatis/vasaEventMapper.xml"/>
+		<mapper resource="mybatis/faultDataManagerMapper.xml"/>
+        <mapper resource="mybatis/storageQosMapper.xml"/>
+		<mapper resource="mybatis/storageMapper.xml"/>
+		<mapper resource="mybatis/storageProfileMapper.xml"/>
+		<mapper resource="mybatis/storageContainerMapper.xml"/>
+		<mapper resource="mybatis/storagePoolMapper.xml"/>
+		<mapper resource="mybatis/storageArrayMapper.xml"/>
+		<mapper resource="mybatis/userManagerMapper.xml"/>
+		<mapper resource="mybatis/vmwareCertificateMapper.xml"/>
+		<mapper resource="mybatis/vmwareCertificateSyncMapper.xml"/>
+		<mapper resource="mybatis/vasaServiceCenterMapper.xml"/>
+		<mapper resource="mybatis/taskInfoMapper.xml"/>
+		<mapper resource="mybatis/virtualMachineMapper.xml"/>
+		<mapper resource="mybatis/arrayCertificateMapper.xml"/>
+		<mapper resource="mybatis/arrayCertificateSyncMapper.xml"/>
+		<mapper resource="mybatis/profileLevelMapper.xml"/>
+		<mapper resource="mybatis/storageProfileLevelMapper.xml"/>
+		<mapper resource="mybatis/addStorageArraySyncMapper.xml"/>
+		<mapper resource="mybatis/vasaPropertyMapper.xml"/>
+		<mapper resource="mybatis/vasaOperationMapper.xml"/>
+		<mapper resource="mybatis/storageCapabilityQosMapper.xml"/>
+		<mapper resource="mybatis/vasaOperationMapper.xml"/>
+		<mapper resource="mybatis/vvolPathMapper.xml"/>
+		<mapper resource="mybatis/snapshotCloneRecordMapper.xml"/>
+		
+		<mapper resource="mybatis/FileSystemTableMapper.xml"/>
+        <mapper resource="mybatis/ShareClientTableMapper.xml"/>
+        <mapper resource="mybatis/FilesystemShareTableMapper.xml"/>
+        <mapper resource="mybatis/EsxHostIpDaoMapper.xml"/>
+	</mappers>
+</configuration>

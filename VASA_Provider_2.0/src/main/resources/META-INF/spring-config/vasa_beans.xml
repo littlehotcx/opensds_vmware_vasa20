@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+        http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/aop   
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+	default-autowire="byName">
+	<!-- <context:property-placeholder location="classpath:conf.properties" -->
+	<!-- order="21" ignore-unresolvable="true" /> -->
+
+	<!-- <context:property-placeholder location="classpath:profession_config.properties" -->
+	<!-- order="22" ignore-unresolvable="true" /> -->
+
+	<bean
+		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+	
+	<bean id="VasaServicePortTypeImpl" class="org.opensds.vasa.vasa.VasaServicePortTypeImpl"
+		init-method="init" destroy-method="destroy">
+		<!-- <property name="secureConnectionService" ref="secureConnectionService" /> 
+		<property name="storageService" ref="storageService" /> -->
+	</bean>
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<!-- locations 属性指定属性文件的位置 -->
+		<property name="locations">
+			<!--如果有多个属性文件，依次在下面列出来二 -->
+			<list>
+				<value>classpath:vasa_private_ext_conf.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="applicationDataSourceFactory" class="org.opensds.vasa.vasa.util.ApplictionDataSourceFactory" />
+	<bean id="dataSource" factory-bean="applicationDataSourceFactory"
+		factory-method="buildLocalDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<!-- <property name="url" value="jdbc:postgresql://8.46.134.144:5432/VASA" 
+			/> <property name="username" value="openstack" /> -->
+		<property name="url" value="${dataBase_url}" />
+		<property name="username" value="${dataBase_username}" />
+		<property name="maxTotal" value="400" />
+		<property name="maxIdle" value="100" />
+		<property name="maxWaitMillis" value="30000" />
+		<property name="defaultAutoCommit" value="true" />
+		<!-- SQL查询,用来验证从连接池取出的连接,在将连接返回给调用者之前.如果指定,则查询必须是一个SQL SELECT并且必须返回至少一行记录 -->
+		<property name="validationQuery">
+			<value>SELECT 1</value>
+		</property>
+		<!-- 指明是否在从池中取出连接前进行检验,如果检验失败,则从池中去除连接并尝试取出另一个 -->
+		<property name="testOnBorrow" value="true" />
+		<!-- 指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除 -->
+		<property name="testWhileIdle" value="true" />
+		<!-- 在空闲连接回收器线程运行期间休眠的时间值,以毫秒为单位.如果设置为非正数,则不运行空闲连接回收器线程 -->
+		<property name="timeBetweenEvictionRunsMillis" value="600000" />
+		<!-- 连接在池中保持空闲而不被空闲连接回收器线程(如果有)回收的最小时间值，单位毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="300000" />
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis/mybatis_mapper_conf.xml"></property>
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 启动spring事务注解，事务注解尽在此 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<bean id="capabilityMetadataDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.CapabilityMetadataDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="capabilityMetadataService"
+		class="org.opensds.vasa.vasa.db.service.impl.CapabilityMetadataServiceImpl">
+		<property name="capabilityMetadataDao" ref="capabilityMetadataDao"></property>
+	</bean>
+
+	<bean id="defaultProfileDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.DefaultProfileDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="defaultProfileService"
+		class="org.opensds.vasa.vasa.db.service.impl.DefaultProfileServiceImpl">
+		<property name="defaultProfileDao" ref="defaultProfileDao"></property>
+	</bean>
+
+	<bean id="vvolMetadataDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.VvolMetadataDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="vvolMetadataService"
+		class="org.opensds.vasa.vasa.db.service.impl.VvolMetadataServiceImpl">
+		<property name="vvolMetadataDao" ref="vvolMetadataDao"></property>
+	</bean>
+
+	<bean id="vvolProfileDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.VvolProfileDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="vvolProfileService"
+		class="org.opensds.vasa.vasa.db.service.impl.VvolProfileServiceImpl">
+		<property name="vvolProfileDao" ref="vvolProfileDao"></property>
+	</bean>
+
+	<bean id="vvolPathDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.VvolPathDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="mysnapshotCloneRecordDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.SnapshotCloneRecordDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	
+	<bean id="esxHostIpDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.EsxHostIpDao"></property>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+
+	
+	<bean id="fileSystemTableDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.FileSystemTableDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	
+	<bean id="filesystemShareTableDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.FilesystemShareTableDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	
+	<bean id="shareClientTableDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.ShareClientTableDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="vvolPathService"
+		class="org.opensds.vasa.vasa.db.service.impl.VvolPathServiceImpl">
+		<property name="vvolPathDao" ref="vvolPathDao"></property>
+		<property name="fileSystemTableDao" ref="fileSystemTableDao"></property>
+		<property name="filesystemShareTableDao" ref="filesystemShareTableDao"></property>
+		<property name="shareClientTableDao" ref="shareClientTableDao"></property>
+	</bean>
+
+	<bean id="snapshotCloneRecordService"
+		class="org.opensds.vasa.vasa.db.service.impl.SnapshotCloneRecordServiceImpl">
+		<property name="snapshotCloneRecordDao" ref="mysnapshotCloneRecordDao"></property>
+	</bean>
+	
+	<bean id="esxHostIpService"
+        class="org.opensds.vasa.vasa.db.service.impl.EsxHostIpServiceImpl">
+        <property name="esxHostIpDao" ref="esxHostIpDao"></property>
+    </bean>
+
+	<bean id="virtualVolumeDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.VirtualVolumeDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="virtualVolumeService"
+		class="org.opensds.vasa.vasa.db.service.impl.VirtualVolumeServiceImpl">
+		<property name="virtualVolumeDao" ref="virtualVolumeDao"></property>
+		<property name="vvolProfileDao" ref="vvolProfileDao"></property>
+		<property name="vvolMetadataDao" ref="vvolMetadataDao"></property>
+	</bean>
+
+	<bean id="profile2VolTypeDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.Profile2VolTypeDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="profile2VolTypeService"
+		class="org.opensds.vasa.vasa.db.service.impl.Profile2VolTypeServiceImpl">
+		<property name="profile2VolTypeDao" ref="profile2VolTypeDao"></property>
+	</bean>
+
+	<bean id="vasaEventDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.VasaEventDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="vasaEventService"
+		class="org.opensds.vasa.vasa.db.service.impl.VasaEventServiceImpl">
+		<property name="vasaEventDao" ref="vasaEventDao"></property>
+	</bean>
+
+	<!-- FaultDataManager -->
+	<bean id="faultDataManagerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.FaultDataManagerDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="faultDataManagerService"
+		class="org.opensds.vasa.vasa.db.service.impl.FaultDataManagerServiceImpl">
+		<property name="faultDataManagerDao" ref="faultDataManagerDao"></property>
+	</bean>
+
+	<bean id="queryKeyStoreService"
+		class="org.opensds.vasa.vasa.db.service.impl.QueryKeyStoreServiceImpl">
+	</bean>
+
+
+	<!-- select pool service -->
+	<bean id="selectPoolService"
+		class="org.opensds.vasa.vasa.pool.service.impl.SelectPoolServiceImpl">
+		<property name="filterServices">
+			<list>
+				<ref bean="poolFilterSmartTierService" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="poolFilterSizeService" class="org.opensds.vasa.vasa.pool.service.impl.PoolFilterSizeService"></bean>
+	<bean id="poolFilterSmartTierService" class="org.opensds.vasa.vasa.pool.service.impl.PoolFilterSmartTierService"></bean>
+
+	<!-- new dataStore dao and service -->
+	<!-- first delete it, open it when the mapper file is wrote -->
+
+	<bean id="storagePoolDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.StoragePoolDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	<bean id="storageContainerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.StorageContainerDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	<bean id="storageProfileDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.StorageProfileDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	<bean id="storageQosDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.StorageQosDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	<bean id="taskInfoDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.TaskInfoDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	<bean id="profileLevelDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.ProfileLevelDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	<bean id="storageProfileLevelDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.StorageProfileLevelDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	<bean id="storageCapabilityQosDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.StorageCapabilityQosDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="profileLevelService" class="org.opensds.vasa.vasa.db.service.impl.ProfileLevelServiceImpl">
+		<constructor-arg name="baseDao" ref="profileLevelDao"></constructor-arg>
+	</bean>
+	<bean id="storageProfileLevelService" class="org.opensds.vasa.vasa.db.service.impl.StorageProfileLevelServiceImpl">
+		<constructor-arg name="baseDao" ref="storageProfileLevelDao"></constructor-arg>
+	</bean>
+	<bean id="taskInfoService"
+		class="org.opensds.vasa.vasa.db.service.impl.TaskInfoServiceImpl">
+		<constructor-arg name="baseDao" ref="taskInfoDao"></constructor-arg>
+	</bean>
+	<bean id="storagePoolService"
+		class="org.opensds.vasa.vasa.db.service.impl.StoragePoolServiceImpl">
+		<constructor-arg name="baseDao" ref="storagePoolDao"></constructor-arg>
+		<property name="storagePoolDao" ref="storagePoolDao"></property>
+	</bean>
+	<bean id="storageContainerService"
+		class="org.opensds.vasa.vasa.db.service.impl.StorageContainerServiceImpl">
+		<constructor-arg name="baseDao" ref="storageContainerDao"></constructor-arg>
+		<property name="storageContainerDao" ref="storageContainerDao"></property>
+	</bean>
+	<bean id="storageProfileService"
+		class="org.opensds.vasa.vasa.db.service.impl.StorageProfileServiceImpl">
+		<constructor-arg name="baseDao" ref="storageProfileDao"></constructor-arg>
+		<property name="storageQosService" ref="storageQosService"></property>
+		<property name="vvolProfileService" ref="vvolProfileService"></property>
+		<property name="storageProfileDao" ref="storageProfileDao"></property>
+		<property name="profileLevelService" ref="profileLevelService"></property>
+		<property name="storageProfileLevelService" ref="storageProfileLevelService"></property>
+		<property name="storageCapabilityQosService" ref="storageCapabilityQosService"></property>
+	</bean>
+	<bean id="storageQosService"
+		class="org.opensds.vasa.vasa.db.service.impl.StorageQosServiceImpl">
+		<constructor-arg name="baseDao" ref="storageQosDao"></constructor-arg>
+		<property name="storageQosDao" ref="storageQosDao"></property>
+	</bean>
+
+	<bean id="storageCapabilityQosService"
+		class="org.opensds.vasa.vasa.db.service.impl.StorageCapabilityQosServiceImpl">
+		<constructor-arg name="baseDao" ref="storageCapabilityQosDao"></constructor-arg>
+	</bean>
+	
+	<bean id="storageManagerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.StorageManagerDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	<bean id="vasaArrayService" class="org.opensds.vasa.vasa.service.VasaArrayServiceImpl">
+		<property name="storageQosService" ref="storageQosService"></property>
+		<property name="storageProfileService" ref="storageProfileService"></property>
+		<property name="deviceManager" ref="deviceManager"></property>
+	</bean>
+	
+	<bean id="vasaNasArrayService" class="org.opensds.vasa.vasa.service.VasaNasArrayServiceImpl">
+	</bean>
+	
+	<bean id="storageManagerService"
+		class="org.opensds.vasa.vasa.db.service.impl.StorageManagerServiceImpl">
+		<property name="storageManagerDao" ref="storageManagerDao"></property>
+	</bean>
+	<!-- vmware certificate dao -->
+	<bean id="vmwareCertificateDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.VmwareCertificateDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="vmwareCertificateService"
+		class="org.opensds.vasa.vasa.db.service.impl.VmwareCertificateServiceImpl">
+		<property name="vmwareCertificateDao" ref="vmwareCertificateDao"></property>
+	</bean>
+	
+	<bean id="arrayCertificateDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.ArrayCertificateDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	
+	<bean id="arrayCertificateService"
+		class="org.opensds.vasa.vasa.db.service.impl.ArrayCertificateServiceImpl">
+		<property name="arrayCertificateDao" ref="arrayCertificateDao"></property>
+	</bean>
+	
+	<!-- vmware certificate sync -->
+	<bean id="vmwareCertificateSyncDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.VmwareCertificateSyncDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="vmwareCertificateSyncService"
+		class="org.opensds.vasa.vasa.db.service.impl.VmwareCertificateSyncServiceImpl">
+		<property name="vmwareCertificateSyncDao" ref="vmwareCertificateSyncDao"></property>
+	</bean>
+	
+	<!-- vasa service center -->
+	<bean id="vasaServiceCenterDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.VasaServiceCenterDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+
+	<bean id="vasaServiceCenterService"
+		class="org.opensds.vasa.vasa.db.service.impl.VasaServiceCenterServiceImpl">
+		<property name="vasaServiceCenterDao" ref="vasaServiceCenterDao"></property>
+	</bean>
+	
+	<bean id="userManagerDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.UserManagerDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	
+	<bean id="userManagerService"
+		class="org.opensds.vasa.vasa.db.service.impl.UserManagerServiceImpl">
+		<constructor-arg name="baseDao" ref="userManagerDao"/>
+		<property name="userManagerDao" ref="userManagerDao"></property>
+	</bean>
+	
+	<bean id="virtualMachineDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.VirtualMachineDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	
+	<bean id="virtualMachineService"
+		class="org.opensds.vasa.vasa.db.service.impl.VirtualMachineServiceImpl">
+		<property name="virtualMachineDao" ref="virtualMachineDao"></property>
+	</bean>
+
+	<bean id="arrayCrtRefreshService" class="org.opensds.vasa.vasa.service.ArrayCrtRefreshService" init-method="startAction">
+		<property name="arrayCertificateService" ref="arrayCertificateService"></property>
+		<property name="vasaOperationService" ref="vasaOperationService"></property>
+		<property name="vasaPropertyService" ref="vasaPropertyService"></property>
+	</bean>
+	
+	 <bean id="storageArrayDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+    	<property name="mapperInterface" value="org.opensds.vasa.vasa20.device.array.db.dao.StorageArrayDao"></property>
+    	<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+    
+    <bean id="vasaPropertyDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+    	<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.VasaPropertyDao"></property>
+    	<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+    
+    <bean id="vasaPropertyService" class="org.opensds.vasa.vasa.db.service.impl.VasaPropertyServiceImpl">
+    	<constructor-arg name="baseDao" ref="vasaPropertyDao"></constructor-arg>
+    </bean>
+    
+    <bean id="vasaOperationDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+    	<property name="mapperInterface" value="org.opensds.vasa.vasa.db.dao.VasaOperationDao"></property>
+    	<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+    </bean>
+    
+    <bean id="vasaOperationService" class="org.opensds.vasa.vasa.db.service.impl.VasaOperationServiceImpl">
+    	<constructor-arg name="baseDao" ref="vasaOperationDao"></constructor-arg>
+    </bean>
+    
+    <bean id="storageArrayService" class="org.opensds.vasa.vasa20.device.array.db.service.impl.StorageArrayServiceImpl">
+    	<property name="storageArrayDao" ref="storageArrayDao"></property>
+    </bean>
+    
+	<bean id="arrayCertificateSyncDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.ArrayCertificateSyncDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	
+	<bean id="arrayCertificateSyncService" class="org.opensds.vasa.vasa.db.service.impl.ArrayCertificateSyncServiceImpl">
+    	<property name="arrayCertificateSyncDao" ref="arrayCertificateSyncDao"></property>
+    </bean>
+    
+    <bean id="addStorageArraySyncDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="org.opensds.vasa.vasa.db.dao.AddStorageArraySyncDao"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+    
+    <bean id="addStorageArraySyncService" class="org.opensds.vasa.vasa.db.service.impl.AddStorageArraySyncServiceImpl">
+    	<property name="addStorageArraySyncDao" ref="addStorageArraySyncDao"></property>
+    </bean>
+    
+	<bean id="deviceSwitchService" class="org.opensds.vasa.vasa20.device.array.login.DeviceSwitchService"/>
+	
+	<bean class="org.opensds.vasa.vasa.rest.bean.DeviceTypeMapper">
+		<property name="location">
+			<value>classpath:META-INF/support_device_type.properties</value>
+		</property>
+	</bean>
+</beans>
