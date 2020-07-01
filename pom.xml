@@ -21,7 +21,7 @@
         <platform.version>1.2.1</platform.version>
 
         <spring.version>5.1.5.RELEASE</spring.version>
-        <log4j.version>2.12.0</log4j.version>
+        <log4j.version>2.13.3</log4j.version>
         <jackson.version>2.9.10</jackson.version>
         <commons-logging.version>1.2</commons-logging.version>
         <commons-codec.version>1.11</commons-codec.version>
