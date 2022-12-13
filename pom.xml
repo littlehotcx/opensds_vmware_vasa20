@@ -44,7 +44,7 @@
         <jedis.version>2.9.0</jedis.version>
         <tomcat-coyote.version>7.0.37</tomcat-coyote.version>
         <dom4j.version>2.1.1</dom4j.version>
-        <apache-cxf.version>3.3.1</apache-cxf.version>
+        <apache-cxf.version>3.4.10</apache-cxf.version>
         <jasypt.version>1.9.2</jasypt.version>
         <quartz.version>2.3.0</quartz.version>
     </properties>
